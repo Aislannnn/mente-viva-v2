@@ -9,6 +9,152 @@ class _HomePageCuidador extends StatelessWidget {
   }
 }
 
+class _DailyOverview extends StatelessWidget {
+  const _DailyOverview({required this.greeting, required this.date});
+
+  final String greeting;
+  final String date;
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder<List<Lembrete>>(
+      valueListenable: lembretes,
+      builder: (context, lista, _) {
+        final total = lista.length;
+        final concluidos = lista.where((l) => l.concluido).length;
+        final progresso = total == 0 ? 0.0 : concluidos / total;
+        return Container(
+          clipBehavior: Clip.antiAlias,
+          decoration: BoxDecoration(
+            color: AppColors.splashStart,
+            borderRadius: BorderRadius.circular(30),
+          ),
+          child: Stack(
+            children: [
+              Positioned(
+                right: -45,
+                top: -58,
+                child: Container(
+                  width: 190,
+                  height: 190,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white12, width: 28),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          width: 44,
+                          height: 44,
+                          padding: const EdgeInsets.all(4),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.13),
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          child: Image.asset('assets/images/logo_branca.png'),
+                        ),
+                        const SizedBox(width: 13),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                greeting,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 23,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                              Text(
+                                date,
+                                style: const TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 13,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 25),
+                    Divider(color: Colors.white.withValues(alpha: 0.16)),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                'Progresso de hoje',
+                                style: TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 13,
+                                ),
+                              ),
+                              const SizedBox(height: 5),
+                              Text(
+                                '$concluidos de $total lembretes',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        SizedBox(
+                          width: 76,
+                          height: 76,
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              SizedBox.expand(
+                                child: CircularProgressIndicator(
+                                  value: progresso,
+                                  strokeWidth: 7,
+                                  strokeCap: StrokeCap.round,
+                                  backgroundColor: Colors.white24,
+                                  valueColor: const AlwaysStoppedAnimation(
+                                    Color(0xFF71D5DF),
+                                  ),
+                                ),
+                              ),
+                              Text(
+                                '${(progresso * 100).round()}%',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
 class _HomePage extends StatelessWidget {
   const _HomePage();
 
@@ -62,107 +208,8 @@ class _HomePage extends StatelessWidget {
           ).copyWith(bottom: 100),
           children: [
             const SizedBox(height: 20),
-            Row(
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(100),
-                  child: Container(
-                    width: 44,
-                    height: 44,
-                    alignment: Alignment.center,
-                    color: escuro ? AppColors.primarySoft : Colors.white,
-                    child: Image.asset(
-                      escuro
-                          ? 'assets/images/logo_branca.png'
-                          : 'assets/images/logo.png',
-                      width: 44,
-                      height: 44,
-                      fit: BoxFit.contain,
-                      alignment: Alignment.center,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      _saudacao(),
-                      style: TextStyle(
-                        color: textColor,
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Text(
-                      _dataFormatada(),
-                      style: TextStyle(color: subColor, fontSize: 13),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            const SizedBox(height: 24),
-            ValueListenableBuilder<List<Lembrete>>(
-              valueListenable: lembretes,
-              builder: (context, lista, _) {
-                final concluidos = lista.where((l) => l.concluido).length;
-                final total = lista.length;
-                return Container(
-                  padding: const EdgeInsets.all(18),
-                  decoration: BoxDecoration(
-                    gradient: const LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        AppColors.splashStart,
-                        AppColors.primary,
-                        AppColors.splashEnd,
-                      ],
-                    ),
-                    borderRadius: BorderRadius.circular(24),
-                    boxShadow: [
-                      BoxShadow(
-                        color: AppColors.primary.withValues(alpha: 0.18),
-                        blurRadius: 20,
-                        offset: const Offset(0, 8),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Progresso de hoje',
-                        style: TextStyle(color: Colors.white70, fontSize: 13),
-                      ),
-                      const SizedBox(height: 6),
-                      Text(
-                        '$concluidos de $total lembretes',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(4),
-                        child: LinearProgressIndicator(
-                          value: total > 0 ? concluidos / total : 0,
-                          backgroundColor: Colors.white24,
-                          valueColor: const AlwaysStoppedAnimation(
-                            Colors.white,
-                          ),
-                          minHeight: 6,
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
-            const SizedBox(height: 24),
+            _DailyOverview(greeting: _saudacao(), date: _dataFormatada()),
+            const SizedBox(height: 28),
             Text(
               'Acesso rápido',
               style: TextStyle(
@@ -200,29 +247,31 @@ class _HomePage extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 12),
-            _QuickCardWide(
-              icon: Icons.notifications_outlined,
-              label: 'Lembretes',
-              color: AppColors.amber,
-              escuro: escuro,
-              onTap: () {
-                context.findAncestorStateOfType<_MainScreenState>()?._selectTab(
-                  2,
-                );
-              },
-            ),
-            const SizedBox(height: 12),
-            _QuickCardWide(
-              icon: Icons.bedtime_outlined,
-              label: 'Registrar horas de sono',
-              color: AppColors.berry,
-              escuro: escuro,
-              onTap: () => showModalBottomSheet(
-                context: context,
-                isScrollControlled: true,
-                backgroundColor: Colors.transparent,
-                builder: (_) => const _RegistrarSonoSheet(),
-              ),
+            Row(
+              children: [
+                _QuickCard(
+                  icon: Icons.notifications_outlined,
+                  label: 'Lembretes',
+                  color: AppColors.amber,
+                  escuro: escuro,
+                  onTap: () => context
+                      .findAncestorStateOfType<_MainScreenState>()
+                      ?._selectTab(2),
+                ),
+                const SizedBox(width: 12),
+                _QuickCard(
+                  icon: Icons.bedtime_outlined,
+                  label: 'Registrar horas de sono',
+                  color: AppColors.berry,
+                  escuro: escuro,
+                  onTap: () => showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    backgroundColor: Colors.transparent,
+                    builder: (_) => const _RegistrarSonoSheet(),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 24),
             Text(

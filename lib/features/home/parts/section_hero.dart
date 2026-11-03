@@ -1,6 +1,6 @@
 part of '../presentation.dart';
 
-/// Cabeçalho compartilhado entre as seções, com a paleta azul do produto.
+/// Cabeçalho tipográfico das seções, independente dos cartões de conteúdo.
 class _SectionHero extends StatelessWidget {
   const _SectionHero({
     required this.icon,
@@ -14,62 +14,57 @@ class _SectionHero extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(22),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            AppColors.splashStart,
-            AppColors.primary,
-            AppColors.splashEnd,
-          ],
-        ),
-        borderRadius: BorderRadius.circular(26),
-        boxShadow: [
-          BoxShadow(
-            color: AppColors.primary.withValues(alpha: 0.16),
-            blurRadius: 20,
-            offset: const Offset(0, 9),
-          ),
-        ],
-      ),
+    final escuro = Theme.of(context).brightness == Brightness.dark;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(2, 12, 2, 8),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Container(
-            width: 50,
-            height: 50,
+            width: 5,
+            height: 62,
             decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.16),
-              borderRadius: BorderRadius.circular(16),
+              color: AppColors.splashEnd,
+              borderRadius: BorderRadius.circular(5),
             ),
-            child: Icon(icon, color: Colors.white, size: 26),
           ),
-          const SizedBox(width: 14),
+          const SizedBox(width: 16),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   title,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 21,
+                  style: TextStyle(
+                    color: escuro ? Colors.white : AppColors.ink,
+                    fontSize: 27,
                     fontWeight: FontWeight.w800,
+                    letterSpacing: -0.7,
                   ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 3),
                 Text(
                   subtitle,
                   style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.84),
-                    fontSize: 13,
+                    color: escuro ? Colors.white70 : AppColors.muted,
+                    fontSize: 14,
                   ),
                 ),
               ],
             ),
+          ),
+          const SizedBox(width: 10),
+          Container(
+            width: 52,
+            height: 52,
+            decoration: BoxDecoration(
+              color: escuro ? AppColors.nightCard : Colors.white,
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(
+                color: escuro ? AppColors.nightCard : AppColors.line,
+              ),
+            ),
+            child: Icon(icon, color: AppColors.primary, size: 25),
           ),
         ],
       ),

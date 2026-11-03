@@ -50,94 +50,77 @@ class _AlbumPage extends StatelessWidget {
                     ),
                   )
                 else
-                  GridView.count(
-                    crossAxisCount: 2,
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    crossAxisSpacing: 12,
-                    mainAxisSpacing: 12,
-                    childAspectRatio: 0.85,
-                    children: lista.asMap().entries.map((entry) {
-                      final idx = entry.key;
-                      final p = entry.value;
-                      return GestureDetector(
-                        onTap: () =>
-                            _verDetalhes(context, p, idx, escuro, eCuidador),
-                        child: Container(
-                          decoration: BoxDecoration(
+                  ...lista.asMap().entries.map((entry) {
+                    final idx = entry.key;
+                    final p = entry.value;
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: Material(
+                        color: escuro ? AppColors.nightSurface : Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(22),
+                          side: BorderSide(
                             color: escuro
-                                ? AppColors.nightSurface
-                                : Colors.white,
-                            borderRadius: BorderRadius.circular(22),
-                            border: Border.all(
-                              color: escuro
-                                  ? AppColors.nightCard
-                                  : AppColors.line,
-                            ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: AppColors.splashStart.withValues(
-                                  alpha: 0.07,
-                                ),
-                                blurRadius: 16,
-                                offset: const Offset(0, 6),
-                              ),
-                            ],
+                                ? AppColors.nightCard
+                                : AppColors.line,
                           ),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
+                        ),
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(22),
+                          onTap: () =>
+                              _verDetalhes(context, p, idx, escuro, eCuidador),
+                          child: Row(
                             children: [
                               Container(
-                                width: 72,
-                                height: 72,
+                                width: 90,
+                                height: 94,
                                 decoration: BoxDecoration(
-                                  color: p.cor.withValues(alpha: 0.15),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Icon(p.icone, color: p.cor, size: 36),
-                              ),
-                              const SizedBox(height: 12),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                ),
-                                child: Text(
-                                  p.nome,
-                                  style: TextStyle(
-                                    color: textColor,
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 10,
-                                  vertical: 3,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: p.cor.withValues(alpha: 0.12),
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                child: Text(
-                                  p.relacao,
-                                  style: TextStyle(
-                                    color: p.cor,
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w600,
+                                  color: p.cor.withValues(alpha: 0.14),
+                                  borderRadius: const BorderRadius.horizontal(
+                                    left: Radius.circular(22),
                                   ),
                                 ),
+                                child: Icon(p.icone, color: p.cor, size: 42),
                               ),
+                              const SizedBox(width: 17),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      p.nome,
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        color: textColor,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 7),
+                                    Text(
+                                      p.relacao,
+                                      style: TextStyle(
+                                        color: p.cor,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Icon(
+                                Icons.arrow_forward_ios_rounded,
+                                color: subColor,
+                                size: 14,
+                              ),
+                              const SizedBox(width: 17),
                             ],
                           ),
                         ),
-                      );
-                    }).toList(),
-                  ),
+                      ),
+                    );
+                  }),
               ],
             );
           },

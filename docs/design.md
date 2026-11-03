@@ -14,7 +14,7 @@ A interface toma como referência o [arquivo Mente Viva no Figma](https://www.fi
 | Texto principal | `#173054` |
 | Fundo escuro | `#0D1A30` |
 
-O cabeçalho em gradiente marca as áreas de Jogos, Lembretes e Álbum. O progresso diário usa o mesmo gradiente. Cartões com cantos amplos, borda sutil e sombra leve dão ritmo às listas. A navegação inferior permanece com as cinco ações existentes e destaca a seção ativa. Em telas largas, o conteúdo fica centralizado até 620 px para preservar a leitura. A seleção de perfil usa o azul do produto como superfície principal.
+O protótipo serve como referência de cor, não como molde de composição. A página inicial reúne saudação, data e progresso em um painel diário com indicador circular; os quatro atalhos formam um conjunto compacto. Jogos e Álbum usam listas com elementos gráficos laterais e espaço para leitura. Os cabeçalhos dessas áreas e de Lembretes são tipográficos, com uma marca ciano lateral, sem as antigas faixas em gradiente. A dica dos jogos usa o acento quente da paleta. A navegação inferior mantém as cinco ações e distribui seu espaço de forma responsiva. Em telas largas, o conteúdo fica centralizado até 620 px. A seleção de perfil usa o azul do produto como superfície principal.
 
 Foram preservados os textos, os dados de demonstração, as ações, os dois perfis, a escala de texto, a escolha de fonte e o modo escuro. Os dados ainda são mantidos somente em memória.
 

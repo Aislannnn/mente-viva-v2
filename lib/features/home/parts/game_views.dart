@@ -91,17 +91,17 @@ class _JogosPage extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: AppColors.primary.withValues(alpha: 0.08),
-                borderRadius: BorderRadius.circular(14),
+                color: AppColors.amber.withValues(alpha: 0.14),
+                borderRadius: BorderRadius.circular(20),
                 border: Border.all(
-                  color: AppColors.primary.withValues(alpha: 0.2),
+                  color: AppColors.amber.withValues(alpha: 0.3),
                 ),
               ),
               child: Row(
                 children: [
                   const Icon(
                     Icons.lightbulb_outline,
-                    color: AppColors.primary,
+                    color: AppColors.amberDark,
                     size: 28,
                   ),
                   const SizedBox(width: 12),
@@ -112,7 +112,7 @@ class _JogosPage extends StatelessWidget {
                         const Text(
                           'Dica do dia',
                           style: TextStyle(
-                            color: AppColors.primary,
+                            color: AppColors.amberDark,
                             fontWeight: FontWeight.bold,
                             fontSize: 13,
                           ),
@@ -138,80 +138,88 @@ class _JogosPage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 12),
-            GridView.count(
-              crossAxisCount: 2,
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-              childAspectRatio: 0.92,
-              children: _jogosData.map((j) {
-                return GestureDetector(
-                  onTap: () => _mostrarDetalhes(context, j, escuro),
-                  child: Container(
-                    padding: const EdgeInsets.all(14),
-                    decoration: BoxDecoration(
-                      color: escuro ? AppColors.nightSurface : Colors.white,
-                      borderRadius: BorderRadius.circular(22),
-                      border: Border.all(
-                        color: escuro ? AppColors.nightCard : AppColors.line,
-                      ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.splashStart.withValues(alpha: 0.07),
-                          blurRadius: 16,
-                          offset: const Offset(0, 6),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          width: 48,
-                          height: 48,
-                          decoration: BoxDecoration(
-                            color: j.cor.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                          child: Icon(j.icone, color: j.cor, size: 26),
-                        ),
-                        const Spacer(),
-                        Text(
-                          j.titulo,
-                          style: TextStyle(
-                            color: textColor,
-                            fontSize: 13,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          j.descricao,
-                          style: TextStyle(color: subColor, fontSize: 11),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(height: 6),
-                        Row(
-                          children: [
-                            Icon(Icons.timer_outlined, color: j.cor, size: 13),
-                            const SizedBox(width: 4),
-                            Text(
-                              j.duracao,
-                              style: TextStyle(
-                                color: j.cor,
-                                fontSize: 11,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
+            ..._jogosData.map(
+              (j) => Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: Material(
+                  color: escuro ? AppColors.nightSurface : Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(22),
+                    side: BorderSide(
+                      color: escuro ? AppColors.nightCard : AppColors.line,
                     ),
                   ),
-                );
-              }).toList(),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(22),
+                    onTap: () => _mostrarDetalhes(context, j, escuro),
+                    child: Padding(
+                      padding: const EdgeInsets.all(17),
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 58,
+                            height: 58,
+                            decoration: BoxDecoration(
+                              color: j.cor.withValues(alpha: 0.13),
+                              borderRadius: BorderRadius.circular(18),
+                            ),
+                            child: Icon(j.icone, color: j.cor, size: 29),
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  j.titulo,
+                                  style: TextStyle(
+                                    color: textColor,
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                                const SizedBox(height: 3),
+                                Text(
+                                  j.descricao,
+                                  style: TextStyle(
+                                    color: subColor,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                                const SizedBox(height: 7),
+                                Row(
+                                  children: [
+                                    Icon(
+                                      Icons.timer_outlined,
+                                      color: j.cor,
+                                      size: 15,
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      j.duracao,
+                                      style: TextStyle(
+                                        color: j.cor,
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Icon(
+                            Icons.arrow_forward_ios_rounded,
+                            color: subColor,
+                            size: 14,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             ),
           ],
         );

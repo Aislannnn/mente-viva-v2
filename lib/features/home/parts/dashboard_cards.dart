@@ -23,110 +23,42 @@ class _QuickCard extends StatelessWidget {
       child: GestureDetector(
         onTap: onTap,
         child: Container(
-          height: 120,
-          padding: const EdgeInsets.all(16),
+          height: 86,
+          padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
             color: cardBg,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-            ],
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: escuro ? AppColors.nightCard : AppColors.line,
+            ),
           ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
+          child: Row(
             children: [
               Container(
-                width: 52,
-                height: 52,
+                width: 40,
+                height: 40,
                 decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(14),
+                  color: color.withValues(alpha: 0.14),
+                  borderRadius: BorderRadius.circular(13),
                 ),
-                child: Icon(icon, color: color, size: 28),
+                child: Icon(icon, color: color, size: 22),
               ),
-              const SizedBox(height: 10),
-              Text(
-                label,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: textColor,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  label,
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: textColor,
+                    fontSize: 13,
+                    height: 1.2,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
               ),
             ],
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class _QuickCardWide extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final Color color;
-  final bool escuro;
-  final VoidCallback onTap;
-
-  const _QuickCardWide({
-    required this.icon,
-    required this.label,
-    required this.color,
-    required this.escuro,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final cardBg = escuro ? AppColors.nightSurface : Colors.white;
-    final textColor = escuro ? Colors.white : Colors.black87;
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: cardBg,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 52,
-              height: 52,
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: Icon(icon, color: color, size: 28),
-            ),
-            const SizedBox(width: 16),
-            Text(
-              label,
-              style: TextStyle(
-                color: textColor,
-                fontSize: 15,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const Spacer(),
-            Icon(
-              Icons.chevron_right,
-              color: escuro ? Colors.white38 : Colors.black26,
-            ),
-          ],
         ),
       ),
     );
