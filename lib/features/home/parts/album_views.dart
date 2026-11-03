@@ -20,40 +20,10 @@ class _AlbumPage extends StatelessWidget {
                 horizontal: 20,
               ).copyWith(top: 20, bottom: 100),
               children: [
-                Row(
-                  children: [
-                    Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: AppColors.lavender.withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Icon(
-                        Icons.photo_album_outlined,
-                        color: AppColors.lavender,
-                        size: 22,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Álbum de memórias',
-                          style: TextStyle(
-                            color: textColor,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          '${lista.length} pessoa(s) cadastrada(s)',
-                          style: TextStyle(color: subColor, fontSize: 13),
-                        ),
-                      ],
-                    ),
-                  ],
+                _SectionHero(
+                  icon: Icons.photo_album_outlined,
+                  title: 'Álbum de memórias',
+                  subtitle: '${lista.length} pessoa(s) cadastrada(s)',
                 ),
                 const SizedBox(height: 20),
                 if (lista.isEmpty)
@@ -98,12 +68,19 @@ class _AlbumPage extends StatelessWidget {
                             color: escuro
                                 ? AppColors.nightSurface
                                 : Colors.white,
-                            borderRadius: BorderRadius.circular(16),
+                            borderRadius: BorderRadius.circular(22),
+                            border: Border.all(
+                              color: escuro
+                                  ? AppColors.nightCard
+                                  : AppColors.line,
+                            ),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.05),
-                                blurRadius: 8,
-                                offset: const Offset(0, 2),
+                                color: AppColors.splashStart.withValues(
+                                  alpha: 0.07,
+                                ),
+                                blurRadius: 16,
+                                offset: const Offset(0, 6),
                               ),
                             ],
                           ),

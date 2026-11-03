@@ -35,84 +35,107 @@ class _MainScreenState extends State<MainScreen> {
     return ValueListenableBuilder<bool>(
       valueListenable: modoEscuro,
       builder: (context, escuro, _) {
-        final navBg = escuro ? AppColors.nightBackground : Colors.white;
-        final iconColor = escuro ? Colors.white70 : Colors.black54;
-        const selectedColor = AppColors.primary;
-        final bgColor = escuro ? Colors.black : AppColors.paper;
+        final navBg = escuro ? AppColors.nightSurface : Colors.white;
+        final iconColor = escuro ? Colors.white70 : AppColors.muted;
+        final selectedColor = escuro
+            ? const Color(0xFF86B5FF)
+            : AppColors.primary;
+        final bgColor = escuro ? AppColors.nightBackground : AppColors.paper;
 
         return Scaffold(
           backgroundColor: bgColor,
           extendBody: true,
-          body: SafeArea(child: _pages[_currentIndex]),
-          floatingActionButton: _buildFab(),
-          bottomNavigationBar: Container(
-            decoration: BoxDecoration(
-              color: navBg,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.08),
-                  blurRadius: 12,
-                  offset: const Offset(0, -2),
-                ),
-              ],
+          body: SafeArea(
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 620),
+                child: _pages[_currentIndex],
+              ),
             ),
-            child: SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    _NavItem(
-                      icon: Icons.home_outlined,
-                      activeIcon: Icons.home,
-                      label: 'Início',
-                      index: 0,
-                      currentIndex: _currentIndex,
-                      selectedColor: selectedColor,
-                      iconColor: iconColor,
-                      onTap: (i) => setState(() => _currentIndex = i),
-                    ),
-                    _NavItem(
-                      icon: Icons.sports_esports_outlined,
-                      activeIcon: Icons.sports_esports,
-                      label: 'Jogos',
-                      index: 1,
-                      currentIndex: _currentIndex,
-                      selectedColor: selectedColor,
-                      iconColor: iconColor,
-                      onTap: (i) => setState(() => _currentIndex = i),
-                    ),
-                    _NavItem(
-                      icon: Icons.notifications_outlined,
-                      activeIcon: Icons.notifications,
-                      label: 'Lembretes',
-                      index: 2,
-                      currentIndex: _currentIndex,
-                      selectedColor: selectedColor,
-                      iconColor: iconColor,
-                      onTap: (i) => setState(() => _currentIndex = i),
-                    ),
-                    _NavItem(
-                      icon: Icons.photo_album_outlined,
-                      activeIcon: Icons.photo_album,
-                      label: 'Álbum',
-                      index: 3,
-                      currentIndex: _currentIndex,
-                      selectedColor: selectedColor,
-                      iconColor: iconColor,
-                      onTap: (i) => setState(() => _currentIndex = i),
-                    ),
-                    _NavItem(
-                      icon: Icons.settings_outlined,
-                      activeIcon: Icons.settings,
-                      label: 'Config.',
-                      index: 4,
-                      currentIndex: _currentIndex,
-                      selectedColor: selectedColor,
-                      iconColor: iconColor,
-                      onTap: (_) => _abrirConfiguracoes(),
+          ),
+          floatingActionButton: _buildFab(),
+          bottomNavigationBar: Center(
+            heightFactor: 1,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 620),
+              child: Container(
+                margin: const EdgeInsets.fromLTRB(12, 0, 12, 10),
+                decoration: BoxDecoration(
+                  color: navBg,
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(
+                    color: escuro ? AppColors.nightCard : AppColors.line,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.splashStart.withValues(alpha: 0.13),
+                      blurRadius: 22,
+                      offset: const Offset(0, 7),
                     ),
                   ],
+                ),
+                child: SafeArea(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 10,
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        _NavItem(
+                          icon: Icons.home_outlined,
+                          activeIcon: Icons.home,
+                          label: 'Início',
+                          index: 0,
+                          currentIndex: _currentIndex,
+                          selectedColor: selectedColor,
+                          iconColor: iconColor,
+                          onTap: (i) => setState(() => _currentIndex = i),
+                        ),
+                        _NavItem(
+                          icon: Icons.sports_esports_outlined,
+                          activeIcon: Icons.sports_esports,
+                          label: 'Jogos',
+                          index: 1,
+                          currentIndex: _currentIndex,
+                          selectedColor: selectedColor,
+                          iconColor: iconColor,
+                          onTap: (i) => setState(() => _currentIndex = i),
+                        ),
+                        _NavItem(
+                          icon: Icons.notifications_outlined,
+                          activeIcon: Icons.notifications,
+                          label: 'Lembretes',
+                          index: 2,
+                          currentIndex: _currentIndex,
+                          selectedColor: selectedColor,
+                          iconColor: iconColor,
+                          onTap: (i) => setState(() => _currentIndex = i),
+                        ),
+                        _NavItem(
+                          icon: Icons.photo_album_outlined,
+                          activeIcon: Icons.photo_album,
+                          label: 'Álbum',
+                          index: 3,
+                          currentIndex: _currentIndex,
+                          selectedColor: selectedColor,
+                          iconColor: iconColor,
+                          onTap: (i) => setState(() => _currentIndex = i),
+                        ),
+                        _NavItem(
+                          icon: Icons.settings_outlined,
+                          activeIcon: Icons.settings,
+                          label: 'Config.',
+                          index: 4,
+                          currentIndex: _currentIndex,
+                          selectedColor: selectedColor,
+                          iconColor: iconColor,
+                          onTap: (_) => _abrirConfiguracoes(),
+                        ),
+                      ],
+                    ),
+                  ),
                 ),
               ),
             ),

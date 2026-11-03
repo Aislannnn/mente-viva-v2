@@ -82,40 +82,10 @@ class _JogosPage extends StatelessWidget {
             horizontal: 20,
           ).copyWith(top: 20, bottom: 80),
           children: [
-            Row(
-              children: [
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: AppColors.caregiver.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Icon(
-                    Icons.sports_esports_outlined,
-                    color: AppColors.caregiver,
-                    size: 22,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Jogos interativos',
-                      style: TextStyle(
-                        color: textColor,
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Text(
-                      'Exercite a memória com diversão',
-                      style: TextStyle(color: subColor, fontSize: 13),
-                    ),
-                  ],
-                ),
-              ],
+            const _SectionHero(
+              icon: Icons.sports_esports_outlined,
+              title: 'Jogos interativos',
+              subtitle: 'Exercite a memória com diversão',
             ),
             const SizedBox(height: 20),
             Container(
@@ -182,12 +152,15 @@ class _JogosPage extends StatelessWidget {
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
                       color: escuro ? AppColors.nightSurface : Colors.white,
-                      borderRadius: BorderRadius.circular(16),
+                      borderRadius: BorderRadius.circular(22),
+                      border: Border.all(
+                        color: escuro ? AppColors.nightCard : AppColors.line,
+                      ),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.05),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
+                          color: AppColors.splashStart.withValues(alpha: 0.07),
+                          blurRadius: 16,
+                          offset: const Offset(0, 6),
                         ),
                       ],
                     ),

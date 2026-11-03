@@ -52,8 +52,8 @@ class _HomePage extends StatelessWidget {
     return ValueListenableBuilder<bool>(
       valueListenable: modoEscuro,
       builder: (context, escuro, _) {
-        final textColor = escuro ? Colors.white : Colors.black87;
-        final subColor = escuro ? Colors.white60 : Colors.black45;
+        final textColor = escuro ? Colors.white : AppColors.ink;
+        final subColor = escuro ? Colors.white60 : AppColors.muted;
         final cardColor = escuro ? AppColors.nightSurface : Colors.white;
 
         return ListView(
@@ -111,8 +111,23 @@ class _HomePage extends StatelessWidget {
                 return Container(
                   padding: const EdgeInsets.all(18),
                   decoration: BoxDecoration(
-                    color: AppColors.primary,
-                    borderRadius: BorderRadius.circular(16),
+                    gradient: const LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        AppColors.splashStart,
+                        AppColors.primary,
+                        AppColors.splashEnd,
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(24),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.primary.withValues(alpha: 0.18),
+                        blurRadius: 20,
+                        offset: const Offset(0, 8),
+                      ),
+                    ],
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,

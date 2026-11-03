@@ -1,5 +1,7 @@
 import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
+
 import '../../core/design_tokens.dart';
 import '../../core/app_state.dart';
 import '../home.dart';
@@ -61,20 +63,21 @@ class _LoadingScreenState extends State<LoadingScreen>
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(200),
-                    child: Container(
-                      width: 220,
-                      height: 220,
+                  Container(
+                    width: 180,
+                    height: 180,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.14),
+                      borderRadius: BorderRadius.circular(40),
+                      border: Border.all(color: Colors.white24),
+                    ),
+                    child: Image.asset(
+                      'assets/images/logo_branca.png',
+                      width: 152,
+                      height: 152,
+                      fit: BoxFit.contain,
                       alignment: Alignment.center,
-                      color: Colors.black,
-                      child: Image.asset(
-                        'assets/images/logo_branca.png',
-                        width: 220,
-                        height: 220,
-                        fit: BoxFit.contain,
-                        alignment: Alignment.center,
-                      ),
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -82,8 +85,9 @@ class _LoadingScreenState extends State<LoadingScreen>
                     'Mente Viva',
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: 48,
-                      fontFamily: 'LibreBarcode128',
+                      fontSize: 38,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: -1,
                     ),
                   ),
                   const SizedBox(height: 40),
@@ -122,84 +126,103 @@ class SelecaoPerfilScreen extends StatelessWidget {
     return ValueListenableBuilder<bool>(
       valueListenable: modoEscuro,
       builder: (context, escuro, _) {
-        final bg = escuro ? Colors.black : AppColors.paper;
-        final textColor = escuro ? Colors.white : Colors.black87;
+        final bg = escuro ? AppColors.nightBackground : AppColors.splashStart;
+        const textColor = Colors.white;
         return Scaffold(
           backgroundColor: bg,
           body: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(28),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 24),
-                  Center(
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(100),
-                      child: Container(
-                        width: 80,
-                        height: 80,
-                        alignment: Alignment.center,
-                        color: escuro ? AppColors.primarySoft : Colors.white,
-                        child: Image.asset(
-                          escuro
-                              ? 'assets/images/logo_branca.png'
-                              : 'assets/images/logo.png',
-                          width: 80,
-                          height: 80,
-                          fit: BoxFit.contain,
-                          alignment: Alignment.center,
-                        ),
+            child: Container(
+              width: double.infinity,
+              decoration: const BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    AppColors.splashStart,
+                    AppColors.primary,
+                    AppColors.splashEnd,
+                  ],
+                ),
+              ),
+              child: SingleChildScrollView(
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 520),
+                    child: Padding(
+                      padding: const EdgeInsets.all(28),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 24),
+                          Center(
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(100),
+                              child: Container(
+                                width: 80,
+                                height: 80,
+                                alignment: Alignment.center,
+                                color: Colors.white.withValues(alpha: 0.14),
+                                child: Image.asset(
+                                  'assets/images/logo_branca.png',
+                                  width: 80,
+                                  height: 80,
+                                  fit: BoxFit.contain,
+                                  alignment: Alignment.center,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          Center(
+                            child: Text(
+                              'Mente Viva',
+                              style: TextStyle(
+                                color: textColor,
+                                fontSize: 28,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ),
+                          Center(
+                            child: Text(
+                              'Quem está usando o aplicativo?',
+                              style: TextStyle(
+                                color: textColor.withValues(alpha: 0.6),
+                                fontSize: 15,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 40),
+                          _CardPerfil(
+                            icone: Icons.person_outline,
+                            titulo: 'Pessoa Assistida',
+                            descricao:
+                                'Visualize sua rotina, lembretes\ne álbum de memórias',
+                            cor: AppColors.primary,
+                            escuro: escuro,
+                            onTap: () {
+                              perfilAtivo.value = 'assistida';
+                              _irParaMain(context);
+                            },
+                          ),
+                          const SizedBox(height: 20),
+                          _CardPerfil(
+                            icone: Icons.medical_services_outlined,
+                            titulo: 'Cuidador',
+                            descricao:
+                                'Gerencie lembretes, álbum,\nprogresso e estatísticas',
+                            cor: AppColors.caregiver,
+                            escuro: escuro,
+                            onTap: () {
+                              perfilAtivo.value = 'cuidador';
+                              _irParaMain(context);
+                            },
+                          ),
+                        ],
                       ),
                     ),
                   ),
-                  const SizedBox(height: 16),
-                  Center(
-                    child: Text(
-                      'Mente Viva',
-                      style: TextStyle(
-                        color: textColor,
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  Center(
-                    child: Text(
-                      'Quem está usando o aplicativo?',
-                      style: TextStyle(
-                        color: textColor.withValues(alpha: 0.6),
-                        fontSize: 15,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 48),
-                  _CardPerfil(
-                    icone: Icons.person_outline,
-                    titulo: 'Pessoa Assistida',
-                    descricao:
-                        'Visualize sua rotina, lembretes\ne álbum de memórias',
-                    cor: AppColors.primary,
-                    escuro: escuro,
-                    onTap: () {
-                      perfilAtivo.value = 'assistida';
-                      _irParaMain(context);
-                    },
-                  ),
-                  const SizedBox(height: 20),
-                  _CardPerfil(
-                    icone: Icons.medical_services_outlined,
-                    titulo: 'Cuidador',
-                    descricao:
-                        'Gerencie lembretes, álbum,\nprogresso e estatísticas',
-                    cor: AppColors.caregiver,
-                    escuro: escuro,
-                    onTap: () {
-                      perfilAtivo.value = 'cuidador';
-                      _irParaMain(context);
-                    },
-                  ),
-                ],
+                ),
               ),
             ),
           ),
@@ -235,7 +258,7 @@ class _CardPerfil extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cardBg = escuro ? AppColors.nightSurface : Colors.white;
-    final textColor = escuro ? Colors.white : Colors.black87;
+    final textColor = escuro ? Colors.white : AppColors.ink;
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -243,13 +266,13 @@ class _CardPerfil extends StatelessWidget {
         padding: const EdgeInsets.all(22),
         decoration: BoxDecoration(
           color: cardBg,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: cor.withValues(alpha: 0.4), width: 2),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.4)),
           boxShadow: [
             BoxShadow(
-              color: cor.withValues(alpha: 0.1),
-              blurRadius: 16,
-              offset: const Offset(0, 4),
+              color: AppColors.splashStart.withValues(alpha: 0.22),
+              blurRadius: 24,
+              offset: const Offset(0, 10),
             ),
           ],
         ),

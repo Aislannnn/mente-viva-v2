@@ -24,40 +24,11 @@ class _LembretesPage extends StatelessWidget {
                 horizontal: 20,
               ).copyWith(top: 20, bottom: 100),
               children: [
-                Row(
-                  children: [
-                    Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: AppColors.amber.withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Icon(
-                        Icons.notifications_outlined,
-                        color: AppColors.amber,
-                        size: 22,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Lembretes',
-                          style: TextStyle(
-                            color: textColor,
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          '${pendentes.length} pendente(s) · ${concluidos.length} concluído(s)',
-                          style: TextStyle(color: subColor, fontSize: 13),
-                        ),
-                      ],
-                    ),
-                  ],
+                _SectionHero(
+                  icon: Icons.notifications_outlined,
+                  title: 'Lembretes',
+                  subtitle:
+                      '${pendentes.length} pendente(s) · ${concluidos.length} concluído(s)',
                 ),
                 const SizedBox(height: 20),
                 if (pendentes.isNotEmpty) ...[
@@ -211,19 +182,19 @@ class _LembreteCard extends StatelessWidget {
             color: l.concluido
                 ? AppColors.primary.withValues(alpha: 0.08)
                 : cardColor,
-            borderRadius: BorderRadius.circular(14),
+            borderRadius: BorderRadius.circular(22),
             border: Border.all(
               color: l.concluido
                   ? AppColors.primary.withValues(alpha: 0.3)
-                  : Colors.transparent,
+                  : AppColors.line,
             ),
             boxShadow: l.concluido
                 ? []
                 : [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
+                      color: AppColors.splashStart.withValues(alpha: 0.07),
+                      blurRadius: 16,
+                      offset: const Offset(0, 6),
                     ),
                   ],
           ),

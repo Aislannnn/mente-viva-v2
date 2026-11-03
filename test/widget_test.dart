@@ -36,4 +36,26 @@ void main() {
 
     expect(find.byType(FloatingActionButton), findsOneWidget);
   });
+
+  testWidgets('As quatro áreas e configurações permanecem acessíveis', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(const MyApp());
+    await tester.pump(const Duration(seconds: 2));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Pessoa Assistida'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Jogos').last);
+    await tester.pumpAndSettle();
+    expect(find.text('Jogos interativos'), findsOneWidget);
+
+    await tester.tap(find.text('Álbum').last);
+    await tester.pumpAndSettle();
+    expect(find.text('Álbum de memórias'), findsOneWidget);
+
+    await tester.tap(find.text('Config.'));
+    await tester.pumpAndSettle();
+    expect(find.text('Configurações'), findsOneWidget);
+  });
 }
