@@ -9,7 +9,7 @@ class _LembretesPage extends StatelessWidget {
       valueListenable: modoEscuro,
       builder: (context, escuro, _) {
         final textColor = escuro ? Colors.white : Colors.black87;
-        final subColor = escuro ? Colors.white60 : Colors.black45;
+        final subColor = escuro ? Colors.white60 : AppColors.muted;
         final cardColor = escuro ? AppColors.nightSurface : Colors.white;
         final eCuidador = perfilAtivo.value == 'cuidador';
 
@@ -363,7 +363,7 @@ class _EditarLembreteSheetState extends State<_EditarLembreteSheet> {
       builder: (context, escuro, _) {
         final bg = escuro ? AppColors.nightBackground : Colors.white;
         final textColor = escuro ? Colors.white : Colors.black87;
-        final subColor = escuro ? Colors.white60 : Colors.black45;
+        final subColor = escuro ? Colors.white60 : AppColors.muted;
         return Container(
           decoration: BoxDecoration(
             color: bg,
@@ -573,7 +573,7 @@ class _CriarLembreteSheetState extends State<_CriarLembreteSheet> {
       builder: (context, escuro, _) {
         final bg = escuro ? AppColors.nightBackground : Colors.white;
         final textColor = escuro ? Colors.white : Colors.black87;
-        final subColor = escuro ? Colors.white60 : Colors.black45;
+        final subColor = escuro ? Colors.white60 : AppColors.muted;
         return Container(
           decoration: BoxDecoration(
             color: bg,

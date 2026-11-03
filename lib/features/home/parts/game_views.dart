@@ -75,7 +75,7 @@ class _JogosPage extends StatelessWidget {
       valueListenable: modoEscuro,
       builder: (context, escuro, _) {
         final textColor = escuro ? Colors.white : Colors.black87;
-        final subColor = escuro ? Colors.white60 : Colors.black45;
+        final subColor = escuro ? Colors.white60 : AppColors.muted;
 
         return ListView(
           padding: const EdgeInsets.symmetric(
@@ -245,7 +245,7 @@ class _DetalhesJogoSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final bg = escuro ? AppColors.nightBackground : Colors.white;
     final textColor = escuro ? Colors.white : Colors.black87;
-    final subColor = escuro ? Colors.white60 : Colors.black45;
+    final subColor = escuro ? Colors.white60 : AppColors.muted;
 
     return Container(
       decoration: BoxDecoration(

@@ -9,7 +9,7 @@ class _AlbumPage extends StatelessWidget {
       valueListenable: modoEscuro,
       builder: (context, escuro, _) {
         final textColor = escuro ? Colors.white : Colors.black87;
-        final subColor = escuro ? Colors.white60 : Colors.black45;
+        final subColor = escuro ? Colors.white60 : AppColors.muted;
         final eCuidador = perfilAtivo.value == 'cuidador';
 
         return ValueListenableBuilder<List<Pessoa>>(
@@ -166,7 +166,7 @@ class _DetalhesPessoaSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final bg = escuro ? AppColors.nightBackground : Colors.white;
     final textColor = escuro ? Colors.white : Colors.black87;
-    final subColor = escuro ? Colors.white60 : Colors.black45;
+    final subColor = escuro ? Colors.white60 : AppColors.muted;
     final p = pessoa;
 
     return Container(
@@ -408,7 +408,7 @@ class _AdicionarPessoaSheetState extends State<_AdicionarPessoaSheet> {
       builder: (context, escuro, _) {
         final bg = escuro ? AppColors.nightBackground : Colors.white;
         final textColor = escuro ? Colors.white : Colors.black87;
-        final subColor = escuro ? Colors.white60 : Colors.black45;
+        final subColor = escuro ? Colors.white60 : AppColors.muted;
         return Container(
           decoration: BoxDecoration(
             color: bg,
@@ -615,7 +615,7 @@ class _EditarPessoaSheetState extends State<_EditarPessoaSheet> {
     final escuro = widget.escuro;
     final bg = escuro ? AppColors.nightBackground : Colors.white;
     final textColor = escuro ? Colors.white : Colors.black87;
-    final subColor = escuro ? Colors.white60 : Colors.black45;
+    final subColor = escuro ? Colors.white60 : AppColors.muted;
     return Container(
       decoration: BoxDecoration(
         color: bg,

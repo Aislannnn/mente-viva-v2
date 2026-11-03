@@ -133,6 +133,7 @@ class SelecaoPerfilScreen extends StatelessWidget {
           body: SafeArea(
             child: Container(
               width: double.infinity,
+              height: double.infinity,
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
