@@ -16,9 +16,9 @@ A interface toma como referência o [arquivo Mente Viva no Figma](https://www.fi
 
 O protótipo serve como referência de cor, não como molde de composição. A pessoa assistida vê quatro destinos na navegação inferior: Hoje, Jogos, Lembretes e Álbum. O cartão “Agora” também abre Lembretes; configurações ficam no botão superior. O painel de Hoje usa uma saudação sem porcentagem de desempenho e destaca o próximo lembrete. O cuidador mantém cinco destinos e o resumo numérico da rotina. Jogos e Álbum usam listas com elementos gráficos laterais e espaço para leitura. Os cabeçalhos dessas áreas e de Lembretes são tipográficos, com uma marca ciano lateral, sem as antigas faixas em gradiente. A dica dos jogos usa o acento quente da paleta. Em telas largas, o conteúdo fica centralizado até 620 px. A seleção de perfil usa o azul do produto como superfície principal.
 
-Após escolher Pessoa Assistida ou Cuidador, aparece uma tela de acesso específica do perfil. Google, Apple e e-mail exibem uma explicação da futura integração; nesta versão nenhum deles conecta uma conta. A ação “Entrar sem conta (demonstração)” abre o aplicativo no perfil escolhido. Não são solicitadas credenciais nem criadas sessões reais.
+Após escolher Pessoa Assistida ou Cuidador, aparece uma tela de acesso específica do perfil. E-mail e senha usam Supabase Auth; Google e Apple iniciam OAuth quando os respectivos provedores estiverem ativados no painel. A ação “Entrar sem conta (demonstração)” abre o aplicativo no perfil escolhido sem criar sessão.
 
-Foram preservados os dados de demonstração, as ações, os dois perfis, a escala de texto, a escolha de fonte e o modo escuro. Os dados ainda são mantidos somente em memória; a integração futura com Supabase será tratada em uma etapa própria.
+Foram preservadas as ações, os dois perfis, a escala de texto, a escolha de fonte e o modo escuro. A demonstração e a prévia ficam somente em memória; contas autenticadas carregam e sincronizam dados com o Supabase. A especificação atual está em [supabase-spec.md](supabase-spec.md).
 
 No catálogo, Sequência de cores e Complete a palavra ficam entre as atividades disponíveis. As demais aparecem sob “Em breve”, sem botão de iniciar. Isso evita indicar que uma atividade ainda não implementada funciona.
 

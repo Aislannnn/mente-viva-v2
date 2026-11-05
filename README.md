@@ -17,7 +17,7 @@ Para habilitar o acesso com e-mail e senha, crie um projeto Supabase e execute c
 flutter run --dart-define=ENABLE_SUPABASE_AUTH=true --dart-define=SUPABASE_URL=https://hdgxxdaedzidkpfmsvra.supabase.co --dart-define=SUPABASE_PUBLISHABLE_KEY=SUA_CHAVE_PUBLICA
 ```
 
-Sem essas opções, o aplicativo permite entrar sem conta e usar a prévia com dados simulados. Esses dois modos não acessam o banco. A chave publicável pode ir para o aplicativo; nunca use `service_role` ou outra chave secreta nele. Google e Apple continuam como prévia até que os provedores sejam configurados.
+Sem essas opções, o aplicativo permite entrar sem conta e usar a prévia com dados simulados. Esses dois modos não acessam o banco. A chave publicável pode ir para o aplicativo; nunca use `service_role` ou outra chave secreta nele. Os botões de Google e Apple já iniciam OAuth, mas os provedores ainda precisam ser configurados no Supabase para concluir o acesso.
 
 Para conferir a versão web:
 
@@ -46,4 +46,4 @@ Com o Supabase configurado, e-mail e senha autenticam contas e exigem confirmaç
 
 O workflow em `.github/workflows/deploy-pages.yml` testa, analisa, compila e publica no GitHub Pages a cada push em `main`. O Pages deve estar configurado com a origem **GitHub Actions**.
 
-O Pages compila com a URL e a chave publicável do projeto Supabase `mente-viva-v2`. No Supabase Auth, a URL do site e o redirecionamento permitido são `https://aislannnn.github.io/mente-viva-v2/`. A migração aplicada está em [supabase/migrations/20261105201031_initial_app_data_and_daily_words.sql](supabase/migrations/20261105201031_initial_app_data_and_daily_words.sql).
+O Pages compila com a URL e a chave publicável do projeto Supabase `mente-viva-v2`. No Supabase Auth, a URL do site e o redirecionamento permitido são `https://aislannnn.github.io/mente-viva-v2/`. As migrações estão em `supabase/migrations/`. O escopo e o estado do banco estão em [docs/supabase-spec.md](docs/supabase-spec.md).
