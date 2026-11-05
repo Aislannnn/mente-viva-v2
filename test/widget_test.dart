@@ -19,7 +19,7 @@ void main() {
     await tester.tap(find.text('Pessoa Assistida'));
     await tester.pumpAndSettle();
     expect(find.text('Hoje'), findsOneWidget);
-    expect(find.text('Lembretes'), findsWidgets);
+    expect(find.text('Ver lembretes'), findsOneWidget);
   });
 
   testWidgets('Cuidador pode abrir a área de lembretes', (
@@ -37,35 +37,37 @@ void main() {
     expect(find.byType(FloatingActionButton), findsOneWidget);
   });
 
-  testWidgets('Pessoa assistida acessa lembretes e configurações com três abas', (
-    WidgetTester tester,
-  ) async {
-    await tester.pumpWidget(const MyApp());
-    await tester.pump(const Duration(seconds: 2));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Pessoa Assistida'));
-    await tester.pumpAndSettle();
+  testWidgets(
+    'Pessoa assistida acessa lembretes e configurações com três abas',
+    (WidgetTester tester) async {
+      await tester.pumpWidget(const MyApp());
+      await tester.pump(const Duration(seconds: 2));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Pessoa Assistida'));
+      await tester.pumpAndSettle();
 
-    expect(find.text('Hoje'), findsOneWidget);
-    expect(find.text('Config.'), findsNothing);
-    await tester.tap(find.text('Lembretes').first);
-    await tester.pumpAndSettle();
-    expect(find.byTooltip('Voltar para Hoje'), findsOneWidget);
-    await tester.tap(find.byTooltip('Voltar para Hoje'));
-    await tester.pumpAndSettle();
+      expect(find.text('Hoje'), findsOneWidget);
+      expect(find.text('Agora'), findsOneWidget);
+      expect(find.text('Config.'), findsNothing);
+    await tester.tap(find.text('Ver lembretes'));
+      await tester.pumpAndSettle();
+      expect(find.byTooltip('Voltar para Hoje'), findsOneWidget);
+      await tester.tap(find.byTooltip('Voltar para Hoje'));
+      await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Jogos').last);
-    await tester.pumpAndSettle();
-    expect(find.text('Jogos interativos'), findsOneWidget);
+      await tester.tap(find.text('Jogos').last);
+      await tester.pumpAndSettle();
+      expect(find.text('Jogos interativos'), findsOneWidget);
 
-    await tester.tap(find.text('Álbum').last);
-    await tester.pumpAndSettle();
-    expect(find.text('Álbum de memórias'), findsOneWidget);
+      await tester.tap(find.text('Álbum').last);
+      await tester.pumpAndSettle();
+      expect(find.text('Álbum de memórias'), findsOneWidget);
 
-    await tester.tap(find.byTooltip('Configurações'));
-    await tester.pumpAndSettle();
-    expect(find.text('Configurações'), findsOneWidget);
-  });
+      await tester.tap(find.byTooltip('Configurações'));
+      await tester.pumpAndSettle();
+      expect(find.text('Configurações'), findsOneWidget);
+    },
+  );
 
   testWidgets('O painel e as listas cabem em uma tela de celular', (
     WidgetTester tester,

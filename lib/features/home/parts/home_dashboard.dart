@@ -168,6 +168,88 @@ class _DailyOverview extends StatelessWidget {
   }
 }
 
+class _AssistedReminderCard extends StatelessWidget {
+  const _AssistedReminderCard();
+
+  @override
+  Widget build(BuildContext context) {
+    final escuro = Theme.of(context).brightness == Brightness.dark;
+    final textColor = escuro ? Colors.white : AppColors.ink;
+    final subColor = escuro ? Colors.white70 : AppColors.muted;
+    return ValueListenableBuilder<List<Lembrete>>(
+      valueListenable: lembretes,
+      builder: (context, items, _) {
+        final pending = items.where((item) => !item.concluido).toList()
+          ..sort((a, b) => a.horario.compareTo(b.horario));
+        final next = pending.isEmpty ? null : pending.first;
+        return Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            color: escuro ? AppColors.nightSurface : Colors.white,
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(
+              color: escuro ? AppColors.nightCard : AppColors.line,
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                'Agora',
+                style: TextStyle(
+                  color: textColor,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              const SizedBox(height: 12),
+              if (next == null)
+                Text(
+                  'Nenhum lembrete pendente.',
+                  style: TextStyle(color: subColor, fontSize: 17),
+                )
+              else ...[
+                Text(
+                  next.horario,
+                  style: const TextStyle(
+                    color: AppColors.primary,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  next.titulo,
+                  style: TextStyle(
+                    color: textColor,
+                    fontSize: 23,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  next.descricao,
+                  style: TextStyle(color: subColor, fontSize: 16),
+                ),
+              ],
+              const SizedBox(height: 18),
+              FilledButton(
+                onPressed: () => context
+                    .findAncestorStateOfType<_MainScreenState>()
+                    ?._selectTab(2),
+                child: const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 12),
+                  child: Text('Ver lembretes'),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
 class _HomePage extends StatelessWidget {
   const _HomePage({this.caregiver = false});
 
@@ -228,44 +310,45 @@ class _HomePage extends StatelessWidget {
               date: _dataFormatada(),
               showProgress: caregiver,
             ),
-            const SizedBox(height: 28),
-            Text(
-              'Acesso rápido',
-              style: TextStyle(
-                color: textColor,
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
+            const SizedBox(height: 24),
+            if (caregiver) ...[
+              Text(
+                'Acesso rápido',
+                style: TextStyle(
+                  color: textColor,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                _QuickCard(
-                  icon: Icons.photo_album_outlined,
-                  label: 'Álbum',
-                  color: AppColors.lavender,
-                  escuro: escuro,
-                  onTap: () {
-                    context
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  _QuickCard(
+                    icon: Icons.photo_album_outlined,
+                    label: 'Álbum',
+                    color: AppColors.lavender,
+                    escuro: escuro,
+                    onTap: () => context
                         .findAncestorStateOfType<_MainScreenState>()
-                        ?._selectTab(3);
-                  },
-                ),
-                const SizedBox(width: 12),
-                _QuickCard(
-                  icon: Icons.sports_esports_outlined,
-                  label: 'Jogos',
-                  color: AppColors.caregiver,
-                  escuro: escuro,
-                  onTap: () {
-                    context
+                        ?._selectTab(3),
+                  ),
+                  const SizedBox(width: 12),
+                  _QuickCard(
+                    icon: Icons.sports_esports_outlined,
+                    label: 'Jogos',
+                    color: AppColors.caregiver,
+                    escuro: escuro,
+                    onTap: () => context
                         .findAncestorStateOfType<_MainScreenState>()
-                        ?._selectTab(1);
-                  },
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
+                        ?._selectTab(1),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+            ] else ...[
+              const _AssistedReminderCard(),
+              const SizedBox(height: 20),
+            ],
             Row(
               children: [
                 _QuickCard(
@@ -334,130 +417,132 @@ class _HomePage extends StatelessWidget {
                 );
               },
             ),
-            const SizedBox(height: 24),
-            Text(
-              'Lembretes de hoje',
-              style: TextStyle(
-                color: textColor,
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
+            if (caregiver) ...[
+              const SizedBox(height: 24),
+              Text(
+                'Lembretes de hoje',
+                style: TextStyle(
+                  color: textColor,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            ),
-            const SizedBox(height: 12),
-            ValueListenableBuilder<List<Lembrete>>(
-              valueListenable: lembretes,
-              builder: (context, lista, _) {
-                final pendentes = lista
-                    .where((l) => !l.concluido)
-                    .take(3)
-                    .toList();
-                if (pendentes.isEmpty) {
-                  return Container(
-                    padding: const EdgeInsets.all(18),
-                    decoration: BoxDecoration(
-                      color: AppColors.primary.withValues(alpha: 0.08),
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    child: Center(
-                      child: Text(
-                        '✓ Todos os lembretes concluídos!',
-                        style: TextStyle(color: subColor),
+              const SizedBox(height: 12),
+              ValueListenableBuilder<List<Lembrete>>(
+                valueListenable: lembretes,
+                builder: (context, lista, _) {
+                  final pendentes = lista
+                      .where((l) => !l.concluido)
+                      .take(3)
+                      .toList();
+                  if (pendentes.isEmpty) {
+                    return Container(
+                      padding: const EdgeInsets.all(18),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary.withValues(alpha: 0.08),
+                        borderRadius: BorderRadius.circular(14),
                       ),
-                    ),
-                  );
-                }
-                return Column(
-                  children: pendentes.map((l) {
-                    final idx = lista.indexOf(l);
-                    return GestureDetector(
-                      onTap: () {
-                        final nova = List<Lembrete>.from(lembretes.value);
-                        nova[idx].concluido = true;
-                        nova[idx].concluidoEm = DateTime.now();
-                        lembretes.value = nova;
-                      },
-                      child: Container(
-                        margin: const EdgeInsets.only(bottom: 10),
-                        padding: const EdgeInsets.all(14),
-                        decoration: BoxDecoration(
-                          color: cardColor,
-                          borderRadius: BorderRadius.circular(14),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.05),
-                              blurRadius: 8,
-                              offset: const Offset(0, 2),
-                            ),
-                          ],
-                        ),
-                        child: Row(
-                          children: [
-                            Container(
-                              width: 44,
-                              height: 44,
-                              decoration: BoxDecoration(
-                                color: AppColors.primary.withValues(
-                                  alpha: 0.08,
-                                ),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Icon(
-                                l.icone,
-                                color: AppColors.primary,
-                                size: 22,
-                              ),
-                            ),
-                            const SizedBox(width: 14),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    l.titulo,
-                                    style: TextStyle(
-                                      color: textColor,
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w600,
-                                    ),
-                                  ),
-                                  Text(
-                                    l.descricao,
-                                    style: TextStyle(
-                                      color: subColor,
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 4,
-                              ),
-                              decoration: BoxDecoration(
-                                color: AppColors.primary.withValues(
-                                  alpha: 0.08,
-                                ),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Text(
-                                l.horario,
-                                style: const TextStyle(
-                                  color: AppColors.primary,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ],
+                      child: Center(
+                        child: Text(
+                          '✓ Todos os lembretes concluídos!',
+                          style: TextStyle(color: subColor),
                         ),
                       ),
                     );
-                  }).toList(),
-                );
-              },
-            ),
+                  }
+                  return Column(
+                    children: pendentes.map((l) {
+                      final idx = lista.indexOf(l);
+                      return GestureDetector(
+                        onTap: () {
+                          final nova = List<Lembrete>.from(lembretes.value);
+                          nova[idx].concluido = true;
+                          nova[idx].concluidoEm = DateTime.now();
+                          lembretes.value = nova;
+                        },
+                        child: Container(
+                          margin: const EdgeInsets.only(bottom: 10),
+                          padding: const EdgeInsets.all(14),
+                          decoration: BoxDecoration(
+                            color: cardColor,
+                            borderRadius: BorderRadius.circular(14),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.05),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 44,
+                                height: 44,
+                                decoration: BoxDecoration(
+                                  color: AppColors.primary.withValues(
+                                    alpha: 0.08,
+                                  ),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Icon(
+                                  l.icone,
+                                  color: AppColors.primary,
+                                  size: 22,
+                                ),
+                              ),
+                              const SizedBox(width: 14),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      l.titulo,
+                                      style: TextStyle(
+                                        color: textColor,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                    Text(
+                                      l.descricao,
+                                      style: TextStyle(
+                                        color: subColor,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: AppColors.primary.withValues(
+                                    alpha: 0.08,
+                                  ),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Text(
+                                  l.horario,
+                                  style: const TextStyle(
+                                    color: AppColors.primary,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  );
+                },
+              ),
+            ],
             const SizedBox(height: 24),
             Text(
               'Pessoas visitadas recentemente',
