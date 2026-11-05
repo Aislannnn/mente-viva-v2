@@ -16,8 +16,9 @@ class _AlbumPage extends StatelessWidget {
           valueListenable: pessoas,
           builder: (context, lista, _) {
             return ListView(
-              padding: const EdgeInsets.symmetric(horizontal: 20)
-                  .copyWith(top: 20, bottom: 100),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 20,
+              ).copyWith(top: 20, bottom: 100),
               children: [
                 SectionHero(
                   icon: Icons.photo_album_outlined,
@@ -79,11 +80,7 @@ class _AlbumPage extends StatelessWidget {
                                     left: Radius.circular(22),
                                   ),
                                 ),
-                                child: Icon(
-                                  p.icone,
-                                  color: escuro ? Colors.white : AppColors.ink,
-                                  size: 42,
-                                ),
+                                child: Icon(p.icone, color: p.cor, size: 42),
                               ),
                               const SizedBox(width: 17),
                               Expanded(
@@ -104,10 +101,8 @@ class _AlbumPage extends StatelessWidget {
                                     Text(
                                       p.relacao,
                                       style: TextStyle(
-                                        color: escuro
-                                            ? Colors.white
-                                            : AppColors.ink,
-                                        fontSize: 14,
+                                        color: p.cor,
+                                        fontSize: 12,
                                         fontWeight: FontWeight.w700,
                                       ),
                                     ),
@@ -201,11 +196,7 @@ class _DetalhesPessoaSheet extends StatelessWidget {
               color: p.cor.withValues(alpha: 0.15),
               shape: BoxShape.circle,
             ),
-            child: Icon(
-              p.icone,
-              color: escuro ? Colors.white : AppColors.ink,
-              size: 46,
-            ),
+            child: Icon(p.icone, color: p.cor, size: 46),
           ),
           const SizedBox(height: 16),
           Text(
@@ -226,7 +217,7 @@ class _DetalhesPessoaSheet extends StatelessWidget {
             child: Text(
               p.relacao,
               style: TextStyle(
-                color: escuro ? Colors.white : AppColors.ink,
+                color: p.cor,
                 fontWeight: FontWeight.w600,
                 fontSize: 14,
               ),
@@ -757,4 +748,3 @@ class _EditarPessoaSheetState extends State<_EditarPessoaSheet> {
     );
   }
 }
-

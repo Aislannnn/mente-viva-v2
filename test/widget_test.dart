@@ -5,7 +5,16 @@ import 'package:mente_viva/main.dart';
 import 'package:mente_viva/core/app_state.dart';
 
 void main() {
-  testWidgets('Escala do app preserva a ampliação do sistema', (
+  setUp(() {
+    lembretes.value = <Lembrete>[];
+    compromissos.value = <Compromisso>[];
+    pessoas.value = <Pessoa>[];
+    registrosSono.value = <RegistroSono>[];
+    esquecimentos.value = <EsquecimentoRegistro>[];
+    visitas.value = <VisitaRegistro>[];
+  });
+
+  testWidgets('Escala do app segue a preferência configurada', (
     WidgetTester tester,
   ) async {
     tester.platformDispatcher.textScaleFactorTestValue = 1.5;
@@ -16,7 +25,7 @@ void main() {
     await tester.pumpWidget(const MyApp());
     final textContext = tester.element(find.text('CARREGANDO...'));
     final scaler = MediaQuery.textScalerOf(textContext);
-    expect(scaler.scale(16), closeTo(28.8, 0.01));
+    expect(scaler.scale(16), closeTo(19.2, 0.01));
     await tester.pump(const Duration(seconds: 2));
     await tester.pumpAndSettle();
   });
@@ -50,6 +59,18 @@ void main() {
     await tester.tap(find.text('Entrar sem conta (demonstração)'));
     await tester.pumpAndSettle();
     expect(find.text('Hoje'), findsOneWidget);
+    expect(find.text('Nenhum lembrete pendente.'), findsOneWidget);
+    expect(lembretes.value, isEmpty);
+    expect(registrosSono.value, isEmpty);
+    lembretes.value = [
+      Lembrete(
+        titulo: 'Beber água',
+        descricao: 'Teste da interação',
+        horario: '12:00',
+        iconCodePoint: Icons.local_drink_outlined.codePoint,
+      ),
+    ];
+    await tester.pumpAndSettle();
     expect(find.text('Já fiz'), findsOneWidget);
     expect(find.text('Ver todos os lembretes'), findsOneWidget);
     expect(find.text('Registrar horas de sono'), findsNothing);
@@ -131,7 +152,7 @@ void main() {
       expect(find.text('Config.'), findsNothing);
       await tester.tap(find.text('Lembretes').last);
       await tester.pumpAndSettle();
-      expect(find.text('Pendentes'), findsOneWidget);
+      expect(find.text('Nenhum lembrete cadastrado.'), findsOneWidget);
       expect(find.text('Lembretes'), findsWidgets);
 
       await tester.tap(find.text('Jogos').last);
@@ -227,13 +248,17 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Acompanhamento'), findsOneWidget);
-    expect(find.text('Concluídos'), findsOneWidget);
+    expect(find.text('Nenhum lembrete cadastrado.'), findsOneWidget);
+    expect(find.text('Ainda não há registros de sono.'), findsNothing);
+    expect(registrosSono.value, isEmpty);
     escalaFonte.value = 1.5;
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull);
-    await tester.scrollUntilVisible(find.text('Sono registrado'), 200);
-    expect(find.text('Sono registrado'), findsOneWidget);
+    await tester.scrollUntilVisible(
+      find.text('Ainda não há registros de sono.'),
+      200,
+    );
+    expect(find.text('Ainda não há registros de sono.'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 }
-

@@ -45,13 +45,10 @@ class MyApp extends StatelessWidget {
                     debugShowCheckedModeBanner: false,
                     theme: buildAppTheme(escuro: escuro, tipoFonte: fonte),
                     builder: (context, child) {
-                      final media = MediaQuery.of(context);
                       return MediaQuery(
-                        data: media.copyWith(
-                          textScaler: escala == 1.0
-                              ? media.textScaler
-                              : _PreferenceTextScaler(media.textScaler, escala),
-                        ),
+                        data: MediaQuery.of(
+                          context,
+                        ).copyWith(textScaler: TextScaler.linear(escala)),
                         child: child!,
                       );
                     },
@@ -66,28 +63,3 @@ class MyApp extends StatelessWidget {
     );
   }
 }
-
-/// Applies the in-app preference without discarding the platform's scaler,
-/// including nonlinear scaling on newer Android versions.
-final class _PreferenceTextScaler extends TextScaler {
-  const _PreferenceTextScaler(this.platform, this.preference);
-
-  final TextScaler platform;
-  final double preference;
-
-  @override
-  double scale(double fontSize) => platform.scale(fontSize) * preference;
-
-  @override
-  double get textScaleFactor => platform.scale(1) * preference;
-
-  @override
-  bool operator ==(Object other) =>
-      other is _PreferenceTextScaler &&
-      other.platform == platform &&
-      other.preference == preference;
-
-  @override
-  int get hashCode => Object.hash(platform, preference);
-}
-

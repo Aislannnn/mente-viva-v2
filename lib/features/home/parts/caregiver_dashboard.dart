@@ -74,42 +74,47 @@ class _CaregiverDashboard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Text(
-                'Dados de demonstração. Os registros ainda não são salvos entre sessões.',
+                'Este painel ainda não tem registros. Os dados adicionados ficam disponíveis apenas nesta sessão.',
                 style: TextStyle(color: muted, fontSize: 14),
               ),
             ),
             const SizedBox(height: 24),
-            _sectionTitle('Lembretes de hoje', foreground),
+            _sectionTitle('Lembretes', foreground),
             const SizedBox(height: 10),
             _panel(
               surface,
-              Column(
-                children: [
-                  _metric(
-                    'Concluídos',
-                    completed,
-                    Icons.check_circle_outline,
-                    AppColors.caregiver,
-                    foreground,
-                  ),
-                  const Divider(height: 20),
-                  _metric(
-                    'Pendentes',
-                    pending.length,
-                    Icons.notifications_outlined,
-                    AppColors.primary,
-                    foreground,
-                  ),
-                  const Divider(height: 20),
-                  _metric(
-                    'Atrasados',
-                    overdue.length,
-                    Icons.schedule,
-                    AppColors.amberText,
-                    foreground,
-                  ),
-                ],
-              ),
+              lembretes.value.isEmpty
+                  ? Text(
+                      'Nenhum lembrete cadastrado.',
+                      style: TextStyle(color: muted, fontSize: 15),
+                    )
+                  : Column(
+                      children: [
+                        _metric(
+                          'Concluídos',
+                          completed,
+                          Icons.check_circle_outline,
+                          AppColors.caregiver,
+                          foreground,
+                        ),
+                        const Divider(height: 20),
+                        _metric(
+                          'Pendentes',
+                          pending.length,
+                          Icons.notifications_outlined,
+                          AppColors.primary,
+                          foreground,
+                        ),
+                        const Divider(height: 20),
+                        _metric(
+                          'Atrasados',
+                          overdue.length,
+                          Icons.schedule,
+                          AppColors.amberText,
+                          foreground,
+                        ),
+                      ],
+                    ),
             ),
             if (overdue.isNotEmpty) ...[
               const SizedBox(height: 12),
@@ -330,4 +335,3 @@ class _CaregiverEvent {
   final String title;
   final IconData icon;
 }
-

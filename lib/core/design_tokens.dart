@@ -19,10 +19,9 @@ abstract final class AppColors {
   static const paper = Color(0xFFEDF4FC);
   static const neutralSurface = Color(0xFFF5F8FD);
   static const ink = Color(0xFF173054);
-  static const muted = Color(0xFF4F6482);
+  static const muted = Color(0xFF5C7190);
   static const line = Color(0xFFD9E6F5);
   static const nightBackground = Color(0xFF0D1A30);
   static const nightSurface = Color(0xFF152742);
   static const nightCard = Color(0xFF1D3453);
 }
-

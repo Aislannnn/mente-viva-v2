@@ -139,7 +139,7 @@ class _ConfigSheet extends StatelessWidget {
                           fontSize: 13,
                           fontWeight: FontWeight.bold,
                         ),
-                        items: ['Padrão', 'Serif', 'Leitura']
+                        items: ['Padrão', 'Serif', 'Mono']
                             .map(
                               (f) => DropdownMenuItem(value: f, child: Text(f)),
                             )
@@ -332,4 +332,3 @@ class _ConfigItem extends StatelessWidget {
     );
   }
 }
-

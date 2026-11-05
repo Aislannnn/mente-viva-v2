@@ -17,7 +17,11 @@ Uma conclusão só é registrada após as três rodadas ou palavras. Sair antes 
 
 `features/home/domain/entities.dart` reúne entidades sem classes de interface. `features/home/presentation.dart` e seus `parts/` apresentam rotina, lembretes, álbum, visitas, formulários e configurações. As propriedades visuais de ícones e cores são convertidas na apresentação.
 
-`core/app_state.dart` ainda é um estado global de demonstração com `ValueNotifier`, dados iniciais e ações de tela. Essa área é legada e ainda precisa migrar suas operações para casos de uso e repositórios próprios. Portanto, **a migração para Clean Architecture ainda não está completa em rotina, álbum e configurações**. A versão atual não tem persistência nem sincronização entre dispositivos.
+`core/app_state.dart` ainda é um estado global de demonstração com `ValueNotifier` e ações de tela. As listas começam vazias; somente ações do usuário nesta sessão criam registros. Essa área é legada e ainda precisa migrar suas operações para casos de uso e repositórios próprios. Portanto, **a migração para Clean Architecture ainda não está completa em rotina, álbum e configurações**. A versão atual não tem persistência nem sincronização entre dispositivos.
+
+## Palavras do dia
+
+O jogo Complete a palavra usa três palavras locais fixas enquanto não há banco de dados. Na etapa futura de persistência, as palavras e dicas deverão vir de um catálogo administrado no banco. Uma seleção diária deve escolher um conjunto por data local, manter o mesmo conjunto ao reabrir o jogo no mesmo dia e mudar no dia seguinte. O app deve receber esse conjunto por uma interface de repositório do domínio, sem consulta direta ao banco na tela. Também será preciso definir um conjunto local de reserva para quando não houver conexão. Nenhuma tabela ou integração foi criada nesta etapa.
 
 O workflow executa testes, análise estática e build web. Os testes de jogos cobrem regras, partidas completas e largura de celular.
 
