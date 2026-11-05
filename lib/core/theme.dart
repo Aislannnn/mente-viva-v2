@@ -11,8 +11,8 @@ ThemeData buildAppTheme({required bool escuro, required String tipoFonte}) {
   );
   if (tipoFonte == 'Serif') {
     base = GoogleFonts.merriweatherTextTheme(base);
-  } else if (tipoFonte == 'Mono') {
-    base = GoogleFonts.sourceCodeProTextTheme(base);
+  } else if (tipoFonte == 'Leitura') {
+    base = GoogleFonts.lexendTextTheme(base);
   }
 
   final scheme = ColorScheme.fromSeed(
@@ -56,3 +56,4 @@ ThemeData buildAppTheme({required bool escuro, required String tipoFonte}) {
     ),
   );
 }
+
