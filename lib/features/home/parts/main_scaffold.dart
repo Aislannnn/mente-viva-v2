@@ -200,26 +200,7 @@ class _MainScreenState extends State<MainScreen> {
         child: const Icon(Icons.person_add_outlined, color: Colors.white),
       );
     }
-    if (_currentIndex == 0 && eCuidador) {
-      return FloatingActionButton.extended(
-        onPressed: () => _registrarVisita(context),
-        backgroundColor: AppColors.caregiver,
-        tooltip: 'Registrar visita',
-        foregroundColor: Colors.white,
-        icon: const Icon(Icons.people_outline),
-        label: const Text('Registrar visita'),
-      );
-    }
     return null;
-  }
-
-  void _registrarVisita(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (_) => const _RegistrarVisitaSheet(),
-    );
   }
 }
 
