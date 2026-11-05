@@ -21,6 +21,8 @@ Uma conclusão só é registrada após as três rodadas ou palavras. Sair antes 
 
 O workflow executa testes, análise estática e build web. Os testes de jogos cobrem regras, partidas completas e largura de celular.
 
-## Acesso de demonstração
+## Acesso e autenticação
 
-`features/auth/domain/access_role.dart` define os dois perfis sem depender de Flutter. A apresentação separa a escolha de perfil da tela de acesso. Os botões Google, Apple e e-mail apenas explicam a futura integração; não solicitam credenciais, não conectam contas e não concedem permissões reais. “Entrar sem conta (demonstração)” usa o perfil escolhido no estado temporário existente. O controle de acesso real dependerá da futura integração com Supabase, incluindo autorização do lado do serviço.
+`features/auth/domain/` define os perfis e o contrato de autenticação sem depender de Flutter. `features/auth/data/supabase_auth_repository.dart` adapta o Supabase Auth para esse contrato. `app/auth_dependencies.dart` inicializa o cliente somente quando URL e chave publicável forem fornecidas. A apresentação separa escolha de perfil, acesso por e-mail e demonstração.
+
+O cadastro envia `display_role` como metadado editável do usuário. Ele seleciona a interface e impede entrada acidental no perfil errado, mas **não autoriza acesso a dados**. Antes de persistir informações de saúde e rotina, o servidor deverá manter os vínculos e papéis confiáveis e aplicar políticas RLS. Nesta etapa, nenhuma tabela de dados foi criada. Google e Apple continuam como prévia; o modo demonstração continua disponível e encerra eventual sessão autenticada.

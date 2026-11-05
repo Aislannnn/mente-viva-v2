@@ -30,11 +30,19 @@ jobs:
       # Flutter bundle can then load the current games without clearing data.
       - name: Build versioned web release
         shell: bash
+        env:
+          SUPABASE_URL: ${{ vars.SUPABASE_URL }}
+          SUPABASE_PUBLISHABLE_KEY: ${{ vars.SUPABASE_PUBLISHABLE_KEY }}
         run: |
           set -euo pipefail
           release="${GITHUB_SHA:0:12}"
           base="/${{ github.event.repository.name }}/releases/${release}/"
-          flutter build web --release --base-href "$base"
+          defines=()
+          if [[ -n "$SUPABASE_URL" && -n "$SUPABASE_PUBLISHABLE_KEY" ]]; then
+            defines+=("--dart-define=SUPABASE_URL=$SUPABASE_URL")
+            defines+=("--dart-define=SUPABASE_PUBLISHABLE_KEY=$SUPABASE_PUBLISHABLE_KEY")
+          fi
+          flutter build web --release --base-href "$base" "${defines[@]}"
           mkdir -p "build/site/releases/$release"
           cp -a build/web/. "build/site/releases/$release/"
           cat > build/site/index.html <<EOF

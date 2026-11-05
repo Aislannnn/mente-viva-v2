@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 
+import '../../app/auth_dependencies.dart';
 import '../../core/app_state.dart';
 import '../../core/design_tokens.dart';
 import '../home.dart';
 import 'domain/access_role.dart';
+import 'email_auth_page.dart';
 
-/// Prévia do fluxo de acesso. Nenhuma opção conecta uma conta nesta versão.
+/// Entrada de demonstração e provedores sociais ainda em preparação.
 class LoginPreviewScreen extends StatelessWidget {
   const LoginPreviewScreen({super.key, required this.role});
 
@@ -15,7 +17,22 @@ class LoginPreviewScreen extends StatelessWidget {
   String get _roleName => _caregiver ? 'Cuidador' : 'Pessoa Assistida';
   Color get _roleColor => _caregiver ? AppColors.caregiver : AppColors.primary;
 
-  void _enterDemo(BuildContext context) {
+  Future<void> _enterDemo(BuildContext context) async {
+    if (authConfigured) {
+      try {
+        await authRepository.signOut();
+      } catch (_) {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Não foi possível sair. Tente novamente.'),
+            ),
+          );
+        }
+        return;
+      }
+    }
+    if (!context.mounted) return;
     perfilAtivo.value = role.profileId;
     Navigator.of(context).pushAndRemoveUntil(
       MaterialPageRoute<void>(builder: (_) => const MainScreen()),
@@ -147,13 +164,17 @@ class LoginPreviewScreen extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       Text(
-                        'Formas de acesso em preparação',
+                        authConfigured
+                            ? 'Acesso à conta'
+                            : 'Formas de acesso em preparação',
                         style: Theme.of(context).textTheme.titleMedium
                             ?.copyWith(fontWeight: FontWeight.w800),
                       ),
                       const SizedBox(height: 6),
                       Text(
-                        'Google, Apple e e-mail ainda não conectam contas.',
+                        authConfigured
+                            ? 'E-mail e senha disponíveis. Google e Apple serão adicionados depois.'
+                            : 'Google, Apple e e-mail ainda não conectam contas.',
                         style: TextStyle(color: mutedColor, fontSize: 14),
                       ),
                       const SizedBox(height: 20),
@@ -180,8 +201,20 @@ class LoginPreviewScreen extends StatelessWidget {
                       _ProviderButton(
                         label: 'Continuar com e-mail',
                         icon: const Icon(Icons.mail_outline_rounded),
-                        onPressed: () =>
-                            _showProviderPreview(context, 'e-mail'),
+                        onPressed: () {
+                          if (!authConfigured) {
+                            _showProviderPreview(context, 'e-mail');
+                            return;
+                          }
+                          Navigator.of(context).push(
+                            MaterialPageRoute<void>(
+                              builder: (_) => EmailAuthPage(
+                                role: role,
+                                repository: authRepository,
+                              ),
+                            ),
+                          );
+                        },
                       ),
                     ],
                   ),

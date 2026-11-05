@@ -60,7 +60,25 @@ class _ConfigSheet extends StatelessWidget {
                       fontSize: 13,
                     ),
                   ),
-                  onTap: () {
+                  onTap: () async {
+                    if (authConfigured) {
+                      try {
+                        await authRepository.signOut();
+                      } catch (_) {
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                'Não foi possível sair. Tente novamente.',
+                              ),
+                            ),
+                          );
+                        }
+                        return;
+                      }
+                    }
+                    if (!context.mounted) return;
+                    perfilAtivo.value = '';
                     Navigator.pop(context);
                     Navigator.of(context).pushReplacement(
                       MaterialPageRoute(

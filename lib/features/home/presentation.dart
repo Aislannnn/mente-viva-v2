@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../app/auth_dependencies.dart';
 import '../../core/app_state.dart';
 import '../../core/design_tokens.dart';
 import '../../core/widgets/section_hero.dart';
