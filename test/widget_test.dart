@@ -164,7 +164,7 @@ void main() {
   testWidgets('Pessoa assistida usa a navegação com texto ampliado', (
     WidgetTester tester,
   ) async {
-    tester.view.physicalSize = const Size(390, 844);
+    tester.view.physicalSize = const Size(320, 568);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
@@ -183,7 +183,7 @@ void main() {
     expect(tester.takeException(), isNull);
     await tester.tap(find.text('Lembretes').last);
     await tester.pumpAndSettle();
-    expect(find.text('Pendentes'), findsOneWidget);
+    expect(find.text('Lembretes'), findsNWidgets(2));
     expect(tester.takeException(), isNull);
   });
 }
