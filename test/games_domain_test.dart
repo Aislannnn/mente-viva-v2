@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mente_viva/features/games/domain/color_sequence.dart';
+import 'package:mente_viva/features/games/domain/daily_words.dart';
 import 'package:mente_viva/features/games/domain/game_completion.dart';
 import 'package:mente_viva/features/games/domain/word_puzzle.dart';
 
@@ -39,6 +40,24 @@ void main() {
     expect(casa.matches([2, 0, 1, 0]), isFalse);
     expect(casa.matches([0, 1, 2, 3]), isFalse);
   });
+
+  test(
+    'palavras do banco mudam a cada dia e permanecem iguais no mesmo dia',
+    () {
+      final words = [
+        for (var id = 1; id <= 6; id++)
+          WordEntry(id: id, hint: 'Pista $id', answer: 'CASA'),
+      ];
+      final first = puzzlesForDay(words, DateTime(2026, 11, 5, 8));
+      final sameDay = puzzlesForDay(words, DateTime(2026, 11, 5, 22));
+      final nextDay = puzzlesForDay(words, DateTime(2026, 11, 6));
+      expect(first.map((item) => item.hint), sameDay.map((item) => item.hint));
+      expect(
+        first.map((item) => item.hint),
+        isNot(nextDay.map((item) => item.hint)),
+      );
+    },
+  );
 
   test('conclusão informa o jogo e o tempo real ao repositório', () {
     final repository = _RecordingRepository();

@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import '../../app/auth_dependencies.dart';
+import '../../app/data_session.dart';
 import '../../core/design_tokens.dart';
 import '../../core/app_state.dart';
 import '../home.dart';
@@ -31,7 +32,10 @@ class _LoadingScreenState extends State<LoadingScreen>
     Future.delayed(const Duration(seconds: 2), () {
       if (mounted) {
         final role = authConfigured ? authRepository.currentDisplayRole : null;
-        if (role != null) perfilAtivo.value = role.profileId;
+        if (role != null) {
+          perfilAtivo.value = role.profileId;
+          appDataSession.chooseMode(SessionMode.account);
+        }
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
             builder: (_) =>

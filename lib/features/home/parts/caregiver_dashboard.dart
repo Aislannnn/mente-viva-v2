@@ -66,18 +66,20 @@ class _CaregiverDashboard extends StatelessWidget {
               title: 'Acompanhamento',
               subtitle: 'Rotina e registros da pessoa assistida',
             ),
-            const SizedBox(height: 16),
-            Container(
-              padding: const EdgeInsets.all(14),
-              decoration: BoxDecoration(
-                color: dark ? AppColors.nightCard : AppColors.neutralSurface,
-                borderRadius: BorderRadius.circular(16),
+            if (appDataSession.mode == SessionMode.guest) ...[
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(14),
+                decoration: BoxDecoration(
+                  color: dark ? AppColors.nightCard : AppColors.neutralSurface,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Text(
+                  'Os registros feitos sem conta ficam disponíveis apenas nesta sessão.',
+                  style: TextStyle(color: muted, fontSize: 14),
+                ),
               ),
-              child: Text(
-                'Este painel ainda não tem registros. Os dados adicionados ficam disponíveis apenas nesta sessão.',
-                style: TextStyle(color: muted, fontSize: 14),
-              ),
-            ),
+            ],
             const SizedBox(height: 24),
             _sectionTitle('Lembretes', foreground),
             const SizedBox(height: 10),

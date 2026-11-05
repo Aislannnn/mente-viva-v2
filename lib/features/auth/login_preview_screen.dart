@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../app/auth_dependencies.dart';
+import '../../app/data_session.dart';
 import '../../core/app_state.dart';
 import '../../core/design_tokens.dart';
 import '../home.dart';
@@ -17,7 +18,7 @@ class LoginPreviewScreen extends StatelessWidget {
   String get _roleName => _caregiver ? 'Cuidador' : 'Pessoa Assistida';
   Color get _roleColor => _caregiver ? AppColors.caregiver : AppColors.primary;
 
-  Future<void> _enterDemo(BuildContext context) async {
+  Future<void> _enterDemo(BuildContext context, {bool preview = false}) async {
     if (authConfigured) {
       try {
         await authRepository.signOut();
@@ -33,6 +34,9 @@ class LoginPreviewScreen extends StatelessWidget {
       }
     }
     if (!context.mounted) return;
+    appDataSession.chooseMode(
+      preview ? SessionMode.preview : SessionMode.guest,
+    );
     perfilAtivo.value = role.profileId;
     Navigator.of(context).pushAndRemoveUntil(
       MaterialPageRoute<void>(builder: (_) => const MainScreen()),
@@ -148,6 +152,14 @@ class LoginPreviewScreen extends StatelessWidget {
                   child: const Padding(
                     padding: EdgeInsets.symmetric(vertical: 16),
                     child: Text('Entrar sem conta (demonstração)'),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                OutlinedButton(
+                  onPressed: () => _enterDemo(context, preview: true),
+                  child: const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 16),
+                    child: Text('Explorar prévia com dados simulados'),
                   ),
                 ),
                 const SizedBox(height: 22),

@@ -16,7 +16,7 @@ abstract final class AppColors {
   static const amberDark = Color(0xFF986422);
   static const berry = Color(0xFFCB7181);
   static const berryText = Color(0xFFA8485A);
-  static const paper = Color(0xFFEDF4FC);
+  static const paper = Color(0xFFF3EEE4);
   static const neutralSurface = Color(0xFFF5F8FD);
   static const ink = Color(0xFF173054);
   static const muted = Color(0xFF5C7190);

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../app/data_session.dart';
 import '../../core/app_state.dart';
 import '../../core/design_tokens.dart';
 import '../home.dart';
@@ -69,6 +70,7 @@ class _EmailAuthPageState extends State<EmailAuthPage> {
         return;
       }
       perfilAtivo.value = widget.role.profileId;
+      appDataSession.chooseMode(SessionMode.account);
       Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute<void>(builder: (_) => const MainScreen()),
         (_) => false,

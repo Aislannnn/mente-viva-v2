@@ -2,16 +2,41 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:mente_viva/main.dart';
+import 'package:mente_viva/app/data_session.dart';
 import 'package:mente_viva/core/app_state.dart';
 
 void main() {
   setUp(() {
+    appDataSession.chooseMode(SessionMode.guest);
     lembretes.value = <Lembrete>[];
     compromissos.value = <Compromisso>[];
     pessoas.value = <Pessoa>[];
     registrosSono.value = <RegistroSono>[];
     esquecimentos.value = <EsquecimentoRegistro>[];
     visitas.value = <VisitaRegistro>[];
+  });
+
+  testWidgets('prévia mostra exemplos identificados sem banco', (
+    WidgetTester tester,
+  ) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    await tester.pumpWidget(const MyApp());
+    await tester.pump(const Duration(seconds: 2));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Pessoa Assistida'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Explorar prévia com dados simulados'));
+    await tester.pumpAndSettle();
+    expect(
+      find.text('PRÉVIA · Dados simulados. Nada será salvo.'),
+      findsOneWidget,
+    );
+    expect(find.text('Beber água'), findsOneWidget);
+    expect(appDataSession.mode, SessionMode.preview);
+    expect(tester.takeException(), isNull);
   });
 
   testWidgets('Escala do app segue a preferência configurada', (
@@ -50,12 +75,18 @@ void main() {
     expect(find.text('Continuar com e-mail'), findsOneWidget);
     expect(find.text('Hoje'), findsNothing);
 
+    await tester.ensureVisible(find.text('Continuar com Google'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Continuar com Google'));
     await tester.pumpAndSettle();
     expect(find.text('Acesso com Google em preparação'), findsOneWidget);
     await tester.tap(find.text('Entendi'));
     await tester.pumpAndSettle();
 
+    await tester.scrollUntilVisible(
+      find.text('Entrar sem conta (demonstração)'),
+      -200,
+    );
     await tester.tap(find.text('Entrar sem conta (demonstração)'));
     await tester.pumpAndSettle();
     expect(find.text('Hoje'), findsOneWidget);

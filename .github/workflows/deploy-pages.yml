@@ -35,7 +35,10 @@ jobs:
           set -euo pipefail
           release="${GITHUB_SHA:0:12}"
           base="/${{ github.event.repository.name }}/releases/${release}/"
-          flutter build web --release --base-href "$base"
+          flutter build web --release --base-href "$base" \
+            --dart-define=ENABLE_SUPABASE_AUTH=true \
+            --dart-define=SUPABASE_URL=https://hdgxxdaedzidkpfmsvra.supabase.co \
+            --dart-define=SUPABASE_PUBLISHABLE_KEY=sb_publishable_iFYjAoi7kqylDEuNg_vMtw_T-tNdy-I
           mkdir -p "build/site/releases/$release"
           cp -a build/web/. "build/site/releases/$release/"
           cat > build/site/index.html <<EOF

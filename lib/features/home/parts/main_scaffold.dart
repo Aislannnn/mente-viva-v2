@@ -9,6 +9,12 @@ class MainScreen extends StatefulWidget {
 class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
 
+  @override
+  void initState() {
+    super.initState();
+    appDataSession.start(perfilAtivo.value);
+  }
+
   void _selectTab(int index) {
     setState(() => _currentIndex = index);
   }
@@ -27,6 +33,70 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
+    return ValueListenableBuilder<SessionPhase>(
+      valueListenable: appDataSession.phase,
+      builder: (context, phase, _) {
+        if (phase == SessionPhase.loading) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+        if (phase == SessionPhase.needsLink) return const _CareLinkScreen();
+        if (phase == SessionPhase.error) {
+          return Scaffold(
+            body: Center(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    appDataSession.message.value ??
+                        'Não foi possível carregar.',
+                  ),
+                  const SizedBox(height: 12),
+                  FilledButton(
+                    onPressed: () => appDataSession.start(perfilAtivo.value),
+                    child: const Text('Tentar novamente'),
+                  ),
+                  TextButton(
+                    onPressed: () async {
+                      if (appDataSession.mode == SessionMode.account) {
+                        try {
+                          await authRepository.signOut();
+                        } catch (_) {
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  'Não foi possível sair da conta.',
+                                ),
+                              ),
+                            );
+                          }
+                          return;
+                        }
+                      }
+                      appDataSession.chooseMode(SessionMode.guest);
+                      if (!context.mounted) return;
+                      Navigator.of(context).pushAndRemoveUntil(
+                        MaterialPageRoute<void>(
+                          builder: (_) => const SelecaoPerfilScreen(),
+                        ),
+                        (_) => false,
+                      );
+                    },
+                    child: const Text('Voltar à escolha de perfil'),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+        return _buildReady(context);
+      },
+    );
+  }
+
+  Widget _buildReady(BuildContext context) {
     final eCuidador = perfilAtivo.value == 'cuidador';
     return ValueListenableBuilder<bool>(
       valueListenable: modoEscuro,
@@ -70,6 +140,70 @@ class _MainScreenState extends State<MainScreen> {
                             ),
                           ],
                         ),
+                      ),
+                    if (appDataSession.mode == SessionMode.preview)
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(10),
+                        color: AppColors.amber.withValues(alpha: 0.25),
+                        child: const Text(
+                          'PRÉVIA · Dados simulados. Nada será salvo.',
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    if (appDataSession.isAccount)
+                      ValueListenableBuilder<String?>(
+                        valueListenable: appDataSession.message,
+                        builder: (context, message, _) => message == null
+                            ? const SizedBox.shrink()
+                            : MaterialBanner(
+                                content: Text(message),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () async {
+                                      if (!appDataSession.needsReload) {
+                                        appDataSession.retrySave();
+                                        return;
+                                      }
+                                      final confirmed = await showDialog<bool>(
+                                        context: context,
+                                        builder: (dialogContext) => AlertDialog(
+                                          title: const Text(
+                                            'Recarregar dados?',
+                                          ),
+                                          content: const Text(
+                                            'As alterações que ainda não foram salvas neste aparelho serão descartadas.',
+                                          ),
+                                          actions: [
+                                            TextButton(
+                                              onPressed: () => Navigator.pop(
+                                                dialogContext,
+                                                false,
+                                              ),
+                                              child: const Text('Cancelar'),
+                                            ),
+                                            FilledButton(
+                                              onPressed: () => Navigator.pop(
+                                                dialogContext,
+                                                true,
+                                              ),
+                                              child: const Text('Recarregar'),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                      if (confirmed == true) {
+                                        appDataSession.start(perfilAtivo.value);
+                                      }
+                                    },
+                                    child: Text(
+                                      appDataSession.needsReload
+                                          ? 'Recarregar'
+                                          : 'Tentar novamente',
+                                    ),
+                                  ),
+                                ],
+                              ),
                       ),
                     Expanded(child: _pages[_currentIndex]),
                   ],
@@ -203,4 +337,3 @@ class _MainScreenState extends State<MainScreen> {
     return null;
   }
 }
-

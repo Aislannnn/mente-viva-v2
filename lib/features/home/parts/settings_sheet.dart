@@ -60,7 +60,23 @@ class _ConfigSheet extends StatelessWidget {
                       fontSize: 13,
                     ),
                   ),
-                  onTap: () {
+                  onTap: () async {
+                    if (appDataSession.mode == SessionMode.account) {
+                      try {
+                        await authRepository.signOut();
+                      } catch (_) {
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text('Não foi possível sair da conta.'),
+                            ),
+                          );
+                        }
+                        return;
+                      }
+                    }
+                    appDataSession.chooseMode(SessionMode.guest);
+                    if (!context.mounted) return;
                     Navigator.pop(context);
                     Navigator.of(context).pushReplacement(
                       MaterialPageRoute(
@@ -70,6 +86,61 @@ class _ConfigSheet extends StatelessWidget {
                   },
                 ),
                 const SizedBox(height: 10),
+                if (appDataSession.isAccount &&
+                    perfilAtivo.value == 'assistida') ...[
+                  _ConfigItem(
+                    escuro: escuro,
+                    icon: Icons.person_add_alt_1_outlined,
+                    label: 'Convidar cuidador',
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () async {
+                      try {
+                        final code = await appDataSession.createInvite();
+                        if (!context.mounted) return;
+                        await showDialog<void>(
+                          context: context,
+                          builder: (dialogContext) => AlertDialog(
+                            title: const Text('Código de convite'),
+                            content: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Text(
+                                  'Compartilhe este código com seu cuidador. Ele vale por 24 horas e pode ser usado uma vez.',
+                                ),
+                                const SizedBox(height: 16),
+                                SelectableText(
+                                  code,
+                                  style: const TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 3,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(dialogContext),
+                                child: const Text('Fechar'),
+                              ),
+                            ],
+                          ),
+                        );
+                      } catch (_) {
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                'Não foi possível gerar o convite.',
+                              ),
+                            ),
+                          );
+                        }
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 10),
+                ],
                 _ConfigItem(
                   escuro: escuro,
                   icon: Icons.dark_mode_outlined,
