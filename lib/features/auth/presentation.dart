@@ -29,21 +29,41 @@ class _LoadingScreenState extends State<LoadingScreen>
       vsync: this,
     )..repeat();
 
-    Future.delayed(const Duration(seconds: 2), () {
-      if (mounted) {
-        final role = authConfigured ? authRepository.currentDisplayRole : null;
-        if (role != null) {
-          perfilAtivo.value = role.profileId;
-          appDataSession.chooseMode(SessionMode.account);
+    _resumeSession();
+  }
+
+  Future<void> _resumeSession() async {
+    await Future<void>.delayed(const Duration(seconds: 2));
+    AccessRole? role;
+    var needsRole = false;
+    if (authConfigured && authRepository.hasSession) {
+      try {
+        role = await authRepository.loadRole();
+        needsRole = role == null;
+      } catch (_) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                'Não foi possível carregar sua conta. Tente entrar novamente.',
+              ),
+            ),
+          );
         }
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(
-            builder: (_) =>
-                role == null ? const SelecaoPerfilScreen() : const MainScreen(),
-          ),
-        );
       }
-    });
+    }
+    if (!mounted) return;
+    if (role != null) {
+      perfilAtivo.value = role.profileId;
+      appDataSession.chooseMode(SessionMode.account);
+    }
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute<void>(
+        builder: (_) => role != null
+            ? const MainScreen()
+            : SelecaoPerfilScreen(completeAccount: needsRole),
+      ),
+    );
   }
 
   @override
@@ -131,7 +151,9 @@ class _LoadingScreenState extends State<LoadingScreen>
 }
 
 class SelecaoPerfilScreen extends StatelessWidget {
-  const SelecaoPerfilScreen({super.key});
+  const SelecaoPerfilScreen({super.key, this.completeAccount = false});
+
+  final bool completeAccount;
 
   @override
   Widget build(BuildContext context) {
@@ -198,7 +220,9 @@ class SelecaoPerfilScreen extends StatelessWidget {
                           ),
                           Center(
                             child: Text(
-                              'Quem está usando o aplicativo?',
+                              completeAccount
+                                  ? 'Escolha o perfil desta conta'
+                                  : 'Quem está usando o aplicativo?',
                               style: TextStyle(
                                 color: textColor.withValues(alpha: 0.6),
                                 fontSize: 15,
@@ -240,7 +264,36 @@ class SelecaoPerfilScreen extends StatelessWidget {
     );
   }
 
-  void _openLogin(BuildContext context, AccessRole role) {
+  Future<void> _openLogin(BuildContext context, AccessRole role) async {
+    if (completeAccount) {
+      showDialog<void>(
+        context: context,
+        barrierDismissible: false,
+        builder: (_) => const Center(child: CircularProgressIndicator()),
+      );
+      try {
+        await authRepository.completeRole(role);
+        if (!context.mounted) return;
+        Navigator.of(context).pop();
+        perfilAtivo.value = role.profileId;
+        appDataSession.chooseMode(SessionMode.account);
+        Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute<void>(builder: (_) => const MainScreen()),
+          (_) => false,
+        );
+      } catch (_) {
+        if (!context.mounted) return;
+        Navigator.of(context).pop();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Não foi possível concluir o perfil. Tente novamente.',
+            ),
+          ),
+        );
+      }
+      return;
+    }
     Navigator.of(context).push(
       MaterialPageRoute<void>(builder: (_) => LoginPreviewScreen(role: role)),
     );

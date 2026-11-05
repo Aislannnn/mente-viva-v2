@@ -15,7 +15,13 @@ class _FakeAuthRepository implements AuthRepository {
   bool get hasSession => false;
 
   @override
-  AccessRole? get currentDisplayRole => null;
+  Future<AccessRole?> loadRole() async => null;
+
+  @override
+  Future<AccessRole> completeRole(AccessRole role) async => role;
+
+  @override
+  Future<void> signInWithProvider(SocialProvider provider) async {}
 
   @override
   Future<AuthResult> signIn({

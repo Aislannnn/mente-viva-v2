@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../app/auth_dependencies.dart';
 import '../../app/data_session.dart';
@@ -6,17 +9,81 @@ import '../../core/app_state.dart';
 import '../../core/design_tokens.dart';
 import '../home.dart';
 import 'domain/access_role.dart';
+import 'domain/auth_repository.dart';
 import 'email_auth_page.dart';
+import 'presentation.dart';
 
-/// Entrada de demonstração e provedores sociais ainda em preparação.
-class LoginPreviewScreen extends StatelessWidget {
+class LoginPreviewScreen extends StatefulWidget {
   const LoginPreviewScreen({super.key, required this.role});
 
   final AccessRole role;
 
-  bool get _caregiver => role == AccessRole.caregiver;
+  @override
+  State<LoginPreviewScreen> createState() => _LoginPreviewScreenState();
+}
+
+class _LoginPreviewScreenState extends State<LoginPreviewScreen> {
+  StreamSubscription<AuthState>? _authSubscription;
+  bool _socialPending = false;
+  bool _awaitingSocialCallback = false;
+
+  bool get _caregiver => widget.role == AccessRole.caregiver;
   String get _roleName => _caregiver ? 'Cuidador' : 'Pessoa Assistida';
   Color get _roleColor => _caregiver ? AppColors.caregiver : AppColors.primary;
+
+  @override
+  void initState() {
+    super.initState();
+    if (authConfigured) {
+      _authSubscription = Supabase.instance.client.auth.onAuthStateChange
+          .listen((event) {
+            if (_awaitingSocialCallback &&
+                event.event == AuthChangeEvent.signedIn &&
+                mounted) {
+              _awaitingSocialCallback = false;
+              Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute<void>(builder: (_) => const LoadingScreen()),
+                (_) => false,
+              );
+            }
+          });
+    }
+  }
+
+  @override
+  void dispose() {
+    _authSubscription?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _enterWithProvider(
+    BuildContext context,
+    SocialProvider provider,
+  ) async {
+    final name = provider == SocialProvider.google ? 'Google' : 'Apple';
+    if (!authConfigured) {
+      _showProviderPreview(context, name);
+      return;
+    }
+    if (_socialPending) return;
+    setState(() {
+      _socialPending = true;
+      _awaitingSocialCallback = true;
+    });
+    try {
+      await authRepository.signInWithProvider(provider);
+      if (mounted) setState(() => _socialPending = false);
+    } on AuthFailure catch (error) {
+      if (!mounted) return;
+      setState(() {
+        _socialPending = false;
+        _awaitingSocialCallback = false;
+      });
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(error.message)));
+    }
+  }
 
   Future<void> _enterDemo(BuildContext context, {bool preview = false}) async {
     if (authConfigured) {
@@ -37,7 +104,7 @@ class LoginPreviewScreen extends StatelessWidget {
     appDataSession.chooseMode(
       preview ? SessionMode.preview : SessionMode.guest,
     );
-    perfilAtivo.value = role.profileId;
+    perfilAtivo.value = widget.role.profileId;
     Navigator.of(context).pushAndRemoveUntil(
       MaterialPageRoute<void>(builder: (_) => const MainScreen()),
       (_) => false,
@@ -185,7 +252,7 @@ class LoginPreviewScreen extends StatelessWidget {
                       const SizedBox(height: 6),
                       Text(
                         authConfigured
-                            ? 'E-mail e senha disponíveis. Google e Apple serão adicionados depois.'
+                            ? 'Entre com sua conta ou explore sem cadastro.'
                             : 'Google, Apple e e-mail ainda não conectam contas.',
                         style: TextStyle(color: mutedColor, fontSize: 14),
                       ),
@@ -201,13 +268,14 @@ class LoginPreviewScreen extends StatelessWidget {
                           ),
                         ),
                         onPressed: () =>
-                            _showProviderPreview(context, 'Google'),
+                            _enterWithProvider(context, SocialProvider.google),
                       ),
                       const SizedBox(height: 10),
                       _ProviderButton(
                         label: 'Continuar com Apple',
                         icon: const Icon(Icons.apple_rounded),
-                        onPressed: () => _showProviderPreview(context, 'Apple'),
+                        onPressed: () =>
+                            _enterWithProvider(context, SocialProvider.apple),
                       ),
                       const SizedBox(height: 10),
                       _ProviderButton(
@@ -221,7 +289,7 @@ class LoginPreviewScreen extends StatelessWidget {
                           Navigator.of(context).push(
                             MaterialPageRoute<void>(
                               builder: (_) => EmailAuthPage(
-                                role: role,
+                                role: widget.role,
                                 repository: authRepository,
                               ),
                             ),

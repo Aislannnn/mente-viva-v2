@@ -22,5 +22,8 @@ Future<void> initializeAuth() async {
   );
 }
 
-AuthRepository get authRepository =>
-    SupabaseAuthRepository(Supabase.instance.client);
+AuthRepository get authRepository => SupabaseAuthRepository(
+  Supabase.instance.client,
+  apiUrl: supabaseUrl,
+  publishableKey: supabasePublishableKey,
+);

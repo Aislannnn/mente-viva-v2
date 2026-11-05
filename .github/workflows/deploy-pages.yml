@@ -48,12 +48,12 @@ jobs:
               <meta charset="utf-8">
               <meta name="viewport" content="width=device-width, initial-scale=1">
               <title>Mente Viva</title>
-              <meta http-equiv="refresh" content="0;url=./releases/$release/">
+              <noscript><meta http-equiv="refresh" content="0;url=./releases/$release/"></noscript>
             </head>
             <body>
               <p>Carregando a versão atual do Mente Viva…</p>
               <p><a href="./releases/$release/">Abrir o aplicativo</a></p>
-              <script>location.replace('./releases/$release/');</script>
+              <script>location.replace('./releases/$release/' + location.search + location.hash);</script>
             </body>
           </html>
           EOF

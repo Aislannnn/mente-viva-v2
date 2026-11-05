@@ -2,6 +2,8 @@ import 'access_role.dart';
 
 enum AuthResult { signedIn, confirmationRequired }
 
+enum SocialProvider { google, apple }
+
 class AuthFailure implements Exception {
   const AuthFailure(this.message);
   final String message;
@@ -21,6 +23,8 @@ abstract interface class AuthRepository {
   });
 
   Future<void> signOut();
+  Future<void> signInWithProvider(SocialProvider provider);
+  Future<AccessRole?> loadRole();
+  Future<AccessRole> completeRole(AccessRole role);
   bool get hasSession;
-  AccessRole? get currentDisplayRole;
 }
