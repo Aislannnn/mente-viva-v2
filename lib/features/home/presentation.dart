@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../app/auth_dependencies.dart';
 import '../../core/app_state.dart';
 import '../../core/design_tokens.dart';
 import '../../core/widgets/section_hero.dart';
@@ -9,9 +8,9 @@ import '../games/presentation/game_catalog_page.dart';
 
 part 'parts/main_scaffold.dart';
 part 'parts/home_dashboard.dart';
+part 'parts/caregiver_dashboard.dart';
 part 'parts/reminder_views.dart';
 part 'parts/album_views.dart';
-part 'parts/dashboard_cards.dart';
 part 'parts/health_forms.dart';
 part 'parts/settings_sheet.dart';
 part 'parts/bottom_nav_item.dart';
@@ -44,3 +43,4 @@ IconData _iconFromCode(int code) {
   if (code == Icons.person.codePoint) return Icons.person;
   return Icons.notifications_outlined;
 }
+
