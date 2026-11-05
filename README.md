@@ -4,7 +4,7 @@ Aplicativo Flutter para acompanhar rotina, lembretes, jogos e memórias. Este re
 
 ## Executar
 
-Requer Flutter 3.47.2 ou versão compatível com Dart 3.12 ou superior.
+Requer Flutter 3.47.2 ou versão compatível com Dart 3.13 ou superior.
 
 ```sh
 flutter pub get
@@ -32,7 +32,7 @@ flutter build web --release --base-href /mente-viva-v2/
 - `lib/features/home/domain/entities.dart`: modelos de rotina e pessoas sem Flutter.
 - `lib/core/app_state.dart`: estado de demonstração da interface antiga, ainda em memória.
 - `lib/core/design_tokens.dart` e `theme.dart`: paleta e tema.
-- `lib/features/auth/`: seleção de perfil e prévia de acesso separada para Pessoa Assistida e Cuidador.
+- `lib/features/auth/`: seleção de perfil, login por e-mail e demonstração separados para Pessoa Assistida e Cuidador.
 - `lib/features/home/parts/`: navegação, painel, lembretes, álbum, formulários e configurações.
 - `lib/features/games/domain/`: regras puras dos jogos e caso de uso de conclusão.
 - `lib/features/games/data/`: repositório e estatísticas em memória.
