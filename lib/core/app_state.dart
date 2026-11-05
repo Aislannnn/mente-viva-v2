@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import 'design_tokens.dart';
 import '../features/home/domain/entities.dart';
 export '../features/home/domain/entities.dart';
@@ -12,8 +13,8 @@ final ValueNotifier<String> tipoFonte = ValueNotifier('Padrão');
 
 final ValueNotifier<List<Lembrete>> lembretes = ValueNotifier([
   Lembrete(
-    titulo: 'Tomar medicamento',
-    descricao: 'Donepezil 10mg — após o café da manhã',
+    titulo: 'Medicamento da manhã',
+    descricao: 'Após o café da manhã',
     horario: '08:00',
     iconCodePoint: Icons.medication_outlined.codePoint,
   ),
@@ -147,3 +148,4 @@ final ValueNotifier<List<VisitaRegistro>> visitas = ValueNotifier([
     nomePessoa: 'Rosa Oliveira',
   ),
 ]);
+
