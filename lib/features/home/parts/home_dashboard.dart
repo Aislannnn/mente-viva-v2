@@ -80,9 +80,9 @@ class _DailyOverview extends StatelessWidget {
                               ),
                               Text(
                                 date,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   color: Colors.white70,
-                                  fontSize: 13,
+                                  fontSize: showProgress ? 13 : 16,
                                 ),
                               ),
                             ],
@@ -171,6 +171,29 @@ class _DailyOverview extends StatelessWidget {
 class _AssistedReminderCard extends StatelessWidget {
   const _AssistedReminderCard();
 
+  void _concluir(BuildContext context, Lembrete item) {
+    final index = lembretes.value.indexOf(item);
+    if (index < 0) return;
+    final updated = List<Lembrete>.from(lembretes.value);
+    updated[index].concluido = true;
+    updated[index].concluidoEm = DateTime.now();
+    lembretes.value = updated;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('${item.titulo} marcado como feito'),
+        action: SnackBarAction(
+          label: 'Desfazer',
+          onPressed: () {
+            if (!lembretes.value.contains(item)) return;
+            item.concluido = false;
+            item.concluidoEm = null;
+            lembretes.value = List<Lembrete>.from(lembretes.value);
+          },
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final escuro = Theme.of(context).brightness == Brightness.dark;
@@ -232,15 +255,23 @@ class _AssistedReminderCard extends StatelessWidget {
                   style: TextStyle(color: subColor, fontSize: 16),
                 ),
               ],
-              const SizedBox(height: 18),
-              FilledButton(
+              if (next != null) ...[
+                const SizedBox(height: 18),
+                FilledButton.icon(
+                  onPressed: () => _concluir(context, next),
+                  icon: const Icon(Icons.check_circle_outline),
+                  label: const Text('Já fiz'),
+                  style: FilledButton.styleFrom(
+                    minimumSize: const Size.fromHeight(56),
+                    textStyle: const TextStyle(fontSize: 18),
+                  ),
+                ),
+              ],
+              TextButton(
                 onPressed: () => context
                     .findAncestorStateOfType<_MainScreenState>()
                     ?._selectTab(2),
-                child: const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 12),
-                  child: Text('Ver lembretes'),
-                ),
+                child: const Text('Ver todos os lembretes'),
               ),
             ],
           ),
@@ -300,9 +331,8 @@ class _HomePage extends StatelessWidget {
         final cardColor = escuro ? AppColors.nightSurface : Colors.white;
 
         return ListView(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 20,
-          ).copyWith(bottom: 100),
+          padding: const EdgeInsets.symmetric(horizontal: 20)
+              .copyWith(bottom: 100),
           children: [
             const SizedBox(height: 20),
             _DailyOverview(
@@ -349,35 +379,37 @@ class _HomePage extends StatelessWidget {
               const _AssistedReminderCard(),
               const SizedBox(height: 20),
             ],
-            Row(
-              children: [
-                _QuickCard(
-                  icon: Icons.notifications_outlined,
-                  label: 'Lembretes',
-                  color: AppColors.amber,
-                  escuro: escuro,
-                  onTap: () => context
-                      .findAncestorStateOfType<_MainScreenState>()
-                      ?._selectTab(2),
-                ),
-                const SizedBox(width: 12),
-                _QuickCard(
-                  icon: Icons.bedtime_outlined,
-                  label: 'Registrar horas de sono',
-                  color: AppColors.berry,
-                  escuro: escuro,
-                  onTap: () => showModalBottomSheet(
-                    context: context,
-                    isScrollControlled: true,
-                    backgroundColor: Colors.transparent,
-                    builder: (_) => const _RegistrarSonoSheet(),
+            if (caregiver) ...[
+              Row(
+                children: [
+                  _QuickCard(
+                    icon: Icons.notifications_outlined,
+                    label: 'Lembretes',
+                    color: AppColors.amber,
+                    escuro: escuro,
+                    onTap: () => context
+                        .findAncestorStateOfType<_MainScreenState>()
+                        ?._selectTab(2),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 24),
+                  const SizedBox(width: 12),
+                  _QuickCard(
+                    icon: Icons.bedtime_outlined,
+                    label: 'Registrar horas de sono',
+                    color: AppColors.berry,
+                    escuro: escuro,
+                    onTap: () => showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true,
+                      backgroundColor: Colors.transparent,
+                      builder: (_) => const _RegistrarSonoSheet(),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 24),
+            ],
             Text(
-              'Rotina de hoje',
+              'Compromissos de hoje',
               style: TextStyle(
                 color: textColor,
                 fontSize: 16,
@@ -397,7 +429,10 @@ class _HomePage extends StatelessWidget {
                       padding: const EdgeInsets.all(16),
                       child: Text(
                         'Nenhum compromisso hoje.',
-                        style: TextStyle(color: subColor),
+                        style: TextStyle(
+                          color: subColor,
+                          fontSize: caregiver ? 14 : 16,
+                        ),
                       ),
                     ),
                   );
@@ -543,81 +578,83 @@ class _HomePage extends StatelessWidget {
                 },
               ),
             ],
-            const SizedBox(height: 24),
-            Text(
-              'Pessoas visitadas recentemente',
-              style: TextStyle(
-                color: textColor,
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
+            if (caregiver) ...[
+              const SizedBox(height: 24),
+              Text(
+                'Pessoas visitadas recentemente',
+                style: TextStyle(
+                  color: textColor,
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            ),
-            const SizedBox(height: 12),
-            ValueListenableBuilder<List<VisitaRegistro>>(
-              valueListenable: visitas,
-              builder: (context, lista, _) {
-                if (lista.isEmpty) {
-                  return Text(
-                    'Nenhuma visita registrada.',
-                    style: TextStyle(color: subColor, fontSize: 13),
-                  );
-                }
-                return Column(
-                  children: lista.take(3).map((v) {
-                    return Container(
-                      margin: const EdgeInsets.only(bottom: 8),
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: cardColor,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 36,
-                            height: 36,
-                            decoration: BoxDecoration(
-                              color: AppColors.caregiver.withValues(
-                                alpha: 0.12,
-                              ),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: const Icon(
-                              Icons.people_outline,
-                              color: AppColors.caregiver,
-                              size: 18,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  v.nomePessoa,
-                                  style: TextStyle(
-                                    color: textColor,
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                Text(
-                                  _formatarData(v.data),
-                                  style: TextStyle(
-                                    color: subColor,
-                                    fontSize: 11,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
+              const SizedBox(height: 12),
+              ValueListenableBuilder<List<VisitaRegistro>>(
+                valueListenable: visitas,
+                builder: (context, lista, _) {
+                  if (lista.isEmpty) {
+                    return Text(
+                      'Nenhuma visita registrada.',
+                      style: TextStyle(color: subColor, fontSize: 13),
                     );
-                  }).toList(),
-                );
-              },
-            ),
+                  }
+                  return Column(
+                    children: lista.take(3).map((v) {
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 8),
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: cardColor,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 36,
+                              height: 36,
+                              decoration: BoxDecoration(
+                                color: AppColors.caregiver.withValues(
+                                  alpha: 0.12,
+                                ),
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: const Icon(
+                                Icons.people_outline,
+                                color: AppColors.caregiver,
+                                size: 18,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    v.nomePessoa,
+                                    style: TextStyle(
+                                      color: textColor,
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                  Text(
+                                    _formatarData(v.data),
+                                    style: TextStyle(
+                                      color: subColor,
+                                      fontSize: 11,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                  );
+                },
+              ),
+            ],
           ],
         );
       },
@@ -685,8 +722,8 @@ class _CompromissoCard extends StatelessWidget {
         child: Row(
           children: [
             Container(
-              width: 44,
-              height: 44,
+              width: 56,
+              height: 56,
               decoration: BoxDecoration(
                 color: AppColors.primary.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(12),
@@ -694,7 +731,7 @@ class _CompromissoCard extends StatelessWidget {
               child: Icon(
                 c.realizado ? Icons.check_circle_outline : Icons.event_outlined,
                 color: AppColors.primary,
-                size: 22,
+                size: 26,
               ),
             ),
             const SizedBox(width: 14),
@@ -706,7 +743,7 @@ class _CompromissoCard extends StatelessWidget {
                     c.titulo,
                     style: TextStyle(
                       color: c.realizado ? subColor : textColor,
-                      fontSize: 14,
+                      fontSize: 18,
                       fontWeight: FontWeight.w600,
                       decoration: c.realizado
                           ? TextDecoration.lineThrough
@@ -715,7 +752,7 @@ class _CompromissoCard extends StatelessWidget {
                   ),
                   Text(
                     c.descricao,
-                    style: TextStyle(color: subColor, fontSize: 12),
+                    style: TextStyle(color: subColor, fontSize: 16),
                   ),
                 ],
               ),
@@ -730,7 +767,7 @@ class _CompromissoCard extends StatelessWidget {
                 c.horario,
                 style: const TextStyle(
                   color: AppColors.primary,
-                  fontSize: 12,
+                  fontSize: 16,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -741,3 +778,4 @@ class _CompromissoCard extends StatelessWidget {
     );
   }
 }
+
