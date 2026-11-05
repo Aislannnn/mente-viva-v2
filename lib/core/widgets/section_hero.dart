@@ -1,8 +1,9 @@
-part of '../presentation.dart';
+import 'package:flutter/material.dart';
+import '../design_tokens.dart';
 
 /// Cabeçalho tipográfico das seções, independente dos cartões de conteúdo.
-class _SectionHero extends StatelessWidget {
-  const _SectionHero({
+class SectionHero extends StatelessWidget {
+  const SectionHero({
     required this.icon,
     required this.title,
     required this.subtitle,

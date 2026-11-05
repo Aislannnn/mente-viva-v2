@@ -14,13 +14,8 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   List<Widget> get _pages => perfilAtivo.value == 'cuidador'
-      ? const [
-          _HomePageCuidador(),
-          _JogosPage(),
-          _LembretesPage(),
-          _AlbumPage(),
-        ]
-      : const [_HomePage(), _JogosPage(), _LembretesPage(), _AlbumPage()];
+      ? const [_HomePageCuidador(), JogosPage(), _LembretesPage(), _AlbumPage()]
+      : const [_HomePage(), JogosPage(), _LembretesPage(), _AlbumPage()];
 
   void _abrirConfiguracoes() {
     showModalBottomSheet(

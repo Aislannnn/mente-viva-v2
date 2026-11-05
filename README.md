@@ -21,12 +21,16 @@ flutter build web --release --base-href /mente-viva-v2/
 
 ## Organização
 
-- `lib/core/models.dart`: modelos de lembretes, pessoas e registros.
-- `lib/core/app_state.dart`: dados de demonstração e estado reativo em memória.
+- `lib/features/home/domain/entities.dart`: modelos de rotina e pessoas sem Flutter.
+- `lib/core/app_state.dart`: estado de demonstração da interface antiga, ainda em memória.
 - `lib/core/design_tokens.dart` e `theme.dart`: paleta e tema.
 - `lib/features/auth/`: abertura e seleção de perfil.
-- `lib/features/home/parts/`: navegação, painel, jogos, lembretes, álbum, formulários e configurações.
-- `test/`: testes de abertura e navegação dos perfis.
+- `lib/features/home/parts/`: navegação, painel, lembretes, álbum, formulários e configurações.
+- `lib/features/games/domain/`: regras puras dos jogos e caso de uso de conclusão.
+- `lib/features/games/data/`: repositório e estatísticas em memória.
+- `lib/features/games/presentation/`: catálogo e telas jogáveis para celular.
+- `lib/app/`: montagem das dependências.
+- `test/`: testes de regras, jogos completos, navegação e limites de arquitetura.
 
 Os dados atuais são mantidos em memória e reiniciam quando o aplicativo fecha. A estrutura e as decisões de design estão documentadas em [docs/architecture.md](docs/architecture.md) e [docs/design.md](docs/design.md).
 

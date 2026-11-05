@@ -1,17 +1,22 @@
 # Arquitetura
 
-Esta versão conserva os fluxos do projeto inicial e separa a interface extensa em arquivos menores. Os arquivos em `lib/features/home/parts/` usam a diretiva `part of` para compartilhar os componentes privados da mesma biblioteca Dart. Assim, a divisão de código não muda a navegação nem o estado do aplicativo.
+O código novo segue a direção de dependências da Clean Architecture: apresentação → domínio ← dados. As regras dos jogos e os modelos de rotina são Dart puro e não importam Flutter. `test/architecture_test.dart` protege essa fronteira.
 
-| Área | Arquivo |
+## Jogos
+
+| Camada | Responsabilidade |
 | --- | --- |
-| Estrutura e navegação principal | `main_scaffold.dart`, `bottom_nav_item.dart` |
-| Painel inicial | `home_dashboard.dart`, `dashboard_cards.dart` |
-| Jogos | `game_views.dart` |
-| Lembretes | `reminder_views.dart` |
-| Álbum e pessoas | `album_views.dart` |
-| Registros de saúde e visitas | `health_forms.dart` |
-| Configurações | `settings_sheet.dart` |
+| `features/games/domain/` | Regras de sequência de cores e palavras, resultado e contrato do repositório |
+| `features/games/data/` | Adaptador e estatísticas em memória |
+| `features/games/presentation/` | Catálogo e telas de toque para celular |
+| `app/game_dependencies.dart` | Montagem do caso de uso com o adaptador |
 
-`app_state.dart` reúne os `ValueNotifier` e os dados de demonstração. `models.dart` contém os tipos usados pelo estado. Ainda não há armazenamento persistente ou backend; criar uma camada de repositório é o próximo passo caso esses dados devam sobreviver ao encerramento do app.
+Uma conclusão só é registrada após as três rodadas ou palavras. Sair antes não soma uma partida. O tempo registrado é o tempo transcorrido, sem presumir a duração anunciada no catálogo.
 
-Os testes cobrem a abertura, a seleção da pessoa assistida e o acesso do cuidador aos lembretes. O workflow também executa a análise estática e o build web.
+## Rotina e pessoas
+
+`features/home/domain/entities.dart` reúne entidades sem classes de interface. `features/home/presentation.dart` e seus `parts/` apresentam rotina, lembretes, álbum, visitas, formulários e configurações. As propriedades visuais de ícones e cores são convertidas na apresentação.
+
+`core/app_state.dart` ainda é um estado global de demonstração com `ValueNotifier`, dados iniciais e ações de tela. Essa área é legada e ainda precisa migrar suas operações para casos de uso e repositórios próprios. Portanto, **a migração para Clean Architecture ainda não está completa em rotina, álbum e configurações**. A versão atual não tem persistência nem sincronização entre dispositivos.
+
+O workflow executa testes, análise estática e build web. Os testes de jogos cobrem regras, partidas completas e largura de celular.

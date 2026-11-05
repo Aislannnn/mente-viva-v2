@@ -24,7 +24,7 @@ class _LembretesPage extends StatelessWidget {
                 horizontal: 20,
               ).copyWith(top: 20, bottom: 100),
               children: [
-                _SectionHero(
+                SectionHero(
                   icon: Icons.notifications_outlined,
                   title: 'Lembretes',
                   subtitle:
@@ -560,7 +560,7 @@ class _CriarLembreteSheetState extends State<_CriarLembreteSheet> {
             ? 'Sem descrição'
             : _desc.text.trim(),
         horario: '$h:$m',
-        icone: _icone,
+        iconCodePoint: _icone.codePoint,
       ),
     ];
     Navigator.pop(context);

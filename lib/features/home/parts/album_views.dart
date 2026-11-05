@@ -20,7 +20,7 @@ class _AlbumPage extends StatelessWidget {
                 horizontal: 20,
               ).copyWith(top: 20, bottom: 100),
               children: [
-                _SectionHero(
+                SectionHero(
                   icon: Icons.photo_album_outlined,
                   title: 'Álbum de memórias',
                   subtitle: '${lista.length} pessoa(s) cadastrada(s)',
@@ -394,8 +394,8 @@ class _AdicionarPessoaSheetState extends State<_AdicionarPessoaSheet> {
         descricao: _desc.text.trim().isEmpty
             ? 'Sem descrição'
             : _desc.text.trim(),
-        icone: Icons.person,
-        cor: _cor,
+        iconCodePoint: Icons.person.codePoint,
+        colorArgb: _cor.toARGB32(),
       ),
     ];
     Navigator.pop(context);
@@ -603,8 +603,8 @@ class _EditarPessoaSheetState extends State<_EditarPessoaSheet> {
       descricao: _desc.text.trim().isEmpty
           ? 'Sem descrição'
           : _desc.text.trim(),
-      icone: Icons.person,
-      cor: _cor,
+      iconCodePoint: Icons.person.codePoint,
+      colorArgb: _cor.toARGB32(),
     );
     pessoas.value = nova;
     Navigator.pop(context);

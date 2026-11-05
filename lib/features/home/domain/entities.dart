@@ -1,12 +1,10 @@
-import 'package:flutter/material.dart';
-
 // ─── MODELOS ───────────────────────────────────────────────────────────────
 
 class Lembrete {
   String titulo;
   String descricao;
   String horario;
-  IconData icone;
+  int iconCodePoint;
   bool concluido;
   DateTime? concluidoEm;
 
@@ -14,7 +12,7 @@ class Lembrete {
     required this.titulo,
     required this.descricao,
     required this.horario,
-    required this.icone,
+    required this.iconCodePoint,
     this.concluido = false,
     this.concluidoEm,
   });
@@ -40,29 +38,15 @@ class Pessoa {
   String nome;
   String relacao;
   String descricao;
-  IconData icone;
-  Color cor;
+  int iconCodePoint;
+  int colorArgb;
 
   Pessoa({
     required this.nome,
     required this.relacao,
     required this.descricao,
-    required this.icone,
-    required this.cor,
-  });
-}
-
-class JogoStat {
-  final String titulo;
-  int vezes;
-  int minutosTotais;
-  DateTime? ultimaVez;
-
-  JogoStat({
-    required this.titulo,
-    this.vezes = 0,
-    this.minutosTotais = 0,
-    this.ultimaVez,
+    required this.iconCodePoint,
+    required this.colorArgb,
   });
 }
 

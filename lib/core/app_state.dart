@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'design_tokens.dart';
-import 'models.dart';
-export 'models.dart';
+import '../features/home/domain/entities.dart';
+export '../features/home/domain/entities.dart';
 
 // ─── ESTADO GLOBAL ─────────────────────────────────────────────────────────
 
@@ -15,25 +15,25 @@ final ValueNotifier<List<Lembrete>> lembretes = ValueNotifier([
     titulo: 'Tomar medicamento',
     descricao: 'Donepezil 10mg — após o café da manhã',
     horario: '08:00',
-    icone: Icons.medication_outlined,
+    iconCodePoint: Icons.medication_outlined.codePoint,
   ),
   Lembrete(
     titulo: 'Hidratação',
     descricao: 'Beber um copo d\'água',
     horario: '10:00',
-    icone: Icons.local_drink_outlined,
+    iconCodePoint: Icons.local_drink_outlined.codePoint,
   ),
   Lembrete(
     titulo: 'Exercício cognitivo',
     descricao: 'Fazer um exercício de memória',
     horario: '14:00',
-    icone: Icons.psychology_outlined,
+    iconCodePoint: Icons.psychology_outlined.codePoint,
   ),
   Lembrete(
     titulo: 'Caminhada',
     descricao: '20 minutos ao ar livre',
     horario: '16:00',
-    icone: Icons.directions_walk_outlined,
+    iconCodePoint: Icons.directions_walk_outlined.codePoint,
   ),
 ]);
 
@@ -63,53 +63,44 @@ final ValueNotifier<List<Pessoa>> pessoas = ValueNotifier([
     nome: 'Maria Silva',
     relacao: 'Filha',
     descricao: 'Mora em São Paulo. Liga todos os domingos.',
-    icone: Icons.person,
-    cor: AppColors.lavender,
+    iconCodePoint: Icons.person.codePoint,
+    colorArgb: AppColors.lavender.toARGB32(),
   ),
   Pessoa(
     nome: 'João Silva',
     relacao: 'Filho',
     descricao: 'Trabalha como médico. Visita às quintas.',
-    icone: Icons.person,
-    cor: AppColors.primary,
+    iconCodePoint: Icons.person.codePoint,
+    colorArgb: AppColors.primary.toARGB32(),
   ),
   Pessoa(
     nome: 'Ana Costa',
     relacao: 'Neta',
     descricao: 'Tem 8 anos. Adora brincar de xadrez.',
-    icone: Icons.person,
-    cor: AppColors.caregiver,
+    iconCodePoint: Icons.person.codePoint,
+    colorArgb: AppColors.caregiver.toARGB32(),
   ),
   Pessoa(
     nome: 'Carlos Lima',
     relacao: 'Cuidador',
     descricao: 'Cuida todos os dias das 8h às 18h.',
-    icone: Icons.person,
-    cor: AppColors.amber,
+    iconCodePoint: Icons.person.codePoint,
+    colorArgb: AppColors.amber.toARGB32(),
   ),
   Pessoa(
     nome: 'Dr. Fernandes',
     relacao: 'Médico',
     descricao: 'Neurologista. Consulta mensal.',
-    icone: Icons.local_hospital_outlined,
-    cor: AppColors.berry,
+    iconCodePoint: Icons.local_hospital_outlined.codePoint,
+    colorArgb: AppColors.berry.toARGB32(),
   ),
   Pessoa(
     nome: 'Rosa Oliveira',
     relacao: 'Irmã',
     descricao: 'Mora na mesma cidade. Visita às sextas.',
-    icone: Icons.person,
-    cor: AppColors.amberDark,
+    iconCodePoint: Icons.person.codePoint,
+    colorArgb: AppColors.amberDark.toARGB32(),
   ),
-]);
-
-final ValueNotifier<List<JogoStat>> jogoStats = ValueNotifier([
-  JogoStat(titulo: 'Sequência de cores'),
-  JogoStat(titulo: 'Complete a palavra'),
-  JogoStat(titulo: 'Encontre o par'),
-  JogoStat(titulo: 'Calendário da memória'),
-  JogoStat(titulo: 'Respiração guiada'),
-  JogoStat(titulo: 'Leitura em voz alta'),
 ]);
 
 final ValueNotifier<List<RegistroSono>> registrosSono = ValueNotifier([
