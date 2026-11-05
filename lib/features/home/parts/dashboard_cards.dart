@@ -19,6 +19,15 @@ class _QuickCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final cardBg = escuro ? AppColors.nightSurface : Colors.white;
     final textColor = escuro ? Colors.white : Colors.black87;
+    final accent = escuro
+        ? Colors.white
+        : color == AppColors.amber
+        ? AppColors.amberText
+        : color == AppColors.berry
+        ? AppColors.berryText
+        : color == AppColors.lavender
+        ? AppColors.lavenderText
+        : color;
     return Expanded(
       child: GestureDetector(
         onTap: onTap,
@@ -41,7 +50,7 @@ class _QuickCard extends StatelessWidget {
                   color: color.withValues(alpha: 0.14),
                   borderRadius: BorderRadius.circular(13),
                 ),
-                child: Icon(icon, color: color, size: 22),
+                child: Icon(icon, color: accent, size: 22),
               ),
               const SizedBox(width: 10),
               Expanded(
@@ -64,3 +73,4 @@ class _QuickCard extends StatelessWidget {
     );
   }
 }
+
