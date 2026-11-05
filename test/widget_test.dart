@@ -18,7 +18,7 @@ void main() {
 
     await tester.tap(find.text('Pessoa Assistida'));
     await tester.pumpAndSettle();
-    expect(find.text('Início'), findsWidgets);
+    expect(find.text('Hoje'), findsOneWidget);
     expect(find.text('Lembretes'), findsWidgets);
   });
 
@@ -37,13 +37,21 @@ void main() {
     expect(find.byType(FloatingActionButton), findsOneWidget);
   });
 
-  testWidgets('As quatro áreas e configurações permanecem acessíveis', (
+  testWidgets('Pessoa assistida acessa lembretes e configurações com três abas', (
     WidgetTester tester,
   ) async {
     await tester.pumpWidget(const MyApp());
     await tester.pump(const Duration(seconds: 2));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Pessoa Assistida'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Hoje'), findsOneWidget);
+    expect(find.text('Config.'), findsNothing);
+    await tester.tap(find.text('Lembretes').first);
+    await tester.pumpAndSettle();
+    expect(find.byTooltip('Voltar para Hoje'), findsOneWidget);
+    await tester.tap(find.byTooltip('Voltar para Hoje'));
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('Jogos').last);
@@ -54,7 +62,7 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Álbum de memórias'), findsOneWidget);
 
-    await tester.tap(find.text('Config.'));
+    await tester.tap(find.byTooltip('Configurações'));
     await tester.pumpAndSettle();
     expect(find.text('Configurações'), findsOneWidget);
   });
@@ -79,7 +87,8 @@ void main() {
     expect(tester.getSize(profileBackground.first).height, 844);
     await tester.tap(find.text('Pessoa Assistida'));
     await tester.pumpAndSettle();
-    expect(find.text('Progresso de hoje'), findsOneWidget);
+    expect(find.text('Seu dia, no seu ritmo.'), findsOneWidget);
+    expect(find.text('Progresso de hoje'), findsNothing);
 
     await tester.tap(find.text('Jogos').last);
     await tester.pumpAndSettle();

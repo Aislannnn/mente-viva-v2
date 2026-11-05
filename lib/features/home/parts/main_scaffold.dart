@@ -27,6 +27,7 @@ class _MainScreenState extends State<MainScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final eCuidador = perfilAtivo.value == 'cuidador';
     return ValueListenableBuilder<bool>(
       valueListenable: modoEscuro,
       builder: (context, escuro, _) {
@@ -44,7 +45,41 @@ class _MainScreenState extends State<MainScreen> {
             child: Center(
               child: ConstrainedBox(
                 constraints: const BoxConstraints(maxWidth: 620),
-                child: _pages[_currentIndex],
+                child: Column(
+                  children: [
+                    if (!eCuidador)
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(20, 8, 12, 0),
+                        child: Row(
+                          children: [
+                            if (_currentIndex == 2)
+                              IconButton(
+                                tooltip: 'Voltar para Hoje',
+                                onPressed: () => _selectTab(0),
+                                icon: const Icon(Icons.arrow_back_rounded),
+                              ),
+                            Expanded(
+                              child: Text(
+                                _currentIndex == 2 ? 'Lembretes' : 'Mente Viva',
+                                style: TextStyle(
+                                  color: escuro ? Colors.white : AppColors.ink,
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ),
+                            IconButton(
+                              tooltip: 'Configurações',
+                              onPressed: _abrirConfiguracoes,
+                              icon: const Icon(Icons.settings_outlined),
+                              iconSize: 27,
+                            ),
+                          ],
+                        ),
+                      ),
+                    Expanded(child: _pages[_currentIndex]),
+                  ],
+                ),
               ),
             ),
           ),
@@ -81,12 +116,15 @@ class _MainScreenState extends State<MainScreen> {
                         _NavItem(
                           icon: Icons.home_outlined,
                           activeIcon: Icons.home,
-                          label: 'Início',
+                          label: eCuidador ? 'Início' : 'Hoje',
                           index: 0,
-                          currentIndex: _currentIndex,
+                          currentIndex: _currentIndex == 2 && !eCuidador
+                              ? 0
+                              : _currentIndex,
                           selectedColor: selectedColor,
                           iconColor: iconColor,
-                          onTap: (i) => setState(() => _currentIndex = i),
+                          large: !eCuidador,
+                          onTap: _selectTab,
                         ),
                         _NavItem(
                           icon: Icons.sports_esports_outlined,
@@ -96,18 +134,20 @@ class _MainScreenState extends State<MainScreen> {
                           currentIndex: _currentIndex,
                           selectedColor: selectedColor,
                           iconColor: iconColor,
-                          onTap: (i) => setState(() => _currentIndex = i),
+                          large: !eCuidador,
+                          onTap: _selectTab,
                         ),
-                        _NavItem(
-                          icon: Icons.notifications_outlined,
-                          activeIcon: Icons.notifications,
-                          label: 'Lembretes',
-                          index: 2,
-                          currentIndex: _currentIndex,
-                          selectedColor: selectedColor,
-                          iconColor: iconColor,
-                          onTap: (i) => setState(() => _currentIndex = i),
-                        ),
+                        if (eCuidador)
+                          _NavItem(
+                            icon: Icons.notifications_outlined,
+                            activeIcon: Icons.notifications,
+                            label: 'Lembretes',
+                            index: 2,
+                            currentIndex: _currentIndex,
+                            selectedColor: selectedColor,
+                            iconColor: iconColor,
+                            onTap: _selectTab,
+                          ),
                         _NavItem(
                           icon: Icons.photo_album_outlined,
                           activeIcon: Icons.photo_album,
@@ -116,18 +156,20 @@ class _MainScreenState extends State<MainScreen> {
                           currentIndex: _currentIndex,
                           selectedColor: selectedColor,
                           iconColor: iconColor,
-                          onTap: (i) => setState(() => _currentIndex = i),
+                          large: !eCuidador,
+                          onTap: _selectTab,
                         ),
-                        _NavItem(
-                          icon: Icons.settings_outlined,
-                          activeIcon: Icons.settings,
-                          label: 'Config.',
-                          index: 4,
-                          currentIndex: _currentIndex,
-                          selectedColor: selectedColor,
-                          iconColor: iconColor,
-                          onTap: (_) => _abrirConfiguracoes(),
-                        ),
+                        if (eCuidador)
+                          _NavItem(
+                            icon: Icons.settings_outlined,
+                            activeIcon: Icons.settings,
+                            label: 'Config.',
+                            index: 4,
+                            currentIndex: _currentIndex,
+                            selectedColor: selectedColor,
+                            iconColor: iconColor,
+                            onTap: (_) => _abrirConfiguracoes(),
+                          ),
                       ],
                     ),
                   ),

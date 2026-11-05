@@ -5,15 +5,20 @@ class _HomePageCuidador extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const _HomePage();
+    return const _HomePage(caregiver: true);
   }
 }
 
 class _DailyOverview extends StatelessWidget {
-  const _DailyOverview({required this.greeting, required this.date});
+  const _DailyOverview({
+    required this.greeting,
+    required this.date,
+    required this.showProgress,
+  });
 
   final String greeting;
   final String date;
+  final bool showProgress;
 
   @override
   Widget build(BuildContext context) {
@@ -85,65 +90,73 @@ class _DailyOverview extends StatelessWidget {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 25),
-                    Divider(color: Colors.white.withValues(alpha: 0.16)),
-                    const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const Text(
-                                'Progresso de hoje',
-                                style: TextStyle(
-                                  color: Colors.white70,
-                                  fontSize: 13,
-                                ),
-                              ),
-                              const SizedBox(height: 5),
-                              Text(
-                                '$concluidos de $total lembretes',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        SizedBox(
-                          width: 76,
-                          height: 76,
-                          child: Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              SizedBox.expand(
-                                child: CircularProgressIndicator(
-                                  value: progresso,
-                                  strokeWidth: 7,
-                                  strokeCap: StrokeCap.round,
-                                  backgroundColor: Colors.white24,
-                                  valueColor: const AlwaysStoppedAnimation(
-                                    Color(0xFF71D5DF),
+                    if (showProgress) ...[
+                      const SizedBox(height: 25),
+                      Divider(color: Colors.white.withValues(alpha: 0.16)),
+                      const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'Progresso de hoje',
+                                  style: TextStyle(
+                                    color: Colors.white70,
+                                    fontSize: 13,
                                   ),
                                 ),
-                              ),
-                              Text(
-                                '${(progresso * 100).round()}%',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w800,
+                                const SizedBox(height: 5),
+                                Text(
+                                  '$concluidos de $total lembretes',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w700,
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
+                          const SizedBox(width: 12),
+                          SizedBox(
+                            width: 76,
+                            height: 76,
+                            child: Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                SizedBox.expand(
+                                  child: CircularProgressIndicator(
+                                    value: progresso,
+                                    strokeWidth: 7,
+                                    strokeCap: StrokeCap.round,
+                                    backgroundColor: Colors.white24,
+                                    valueColor: const AlwaysStoppedAnimation(
+                                      Color(0xFF71D5DF),
+                                    ),
+                                  ),
+                                ),
+                                Text(
+                                  '${(progresso * 100).round()}%',
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ] else ...[
+                      const SizedBox(height: 16),
+                      const Text(
+                        'Seu dia, no seu ritmo.',
+                        style: TextStyle(color: Colors.white, fontSize: 18),
+                      ),
+                    ],
                   ],
                 ),
               ),
@@ -156,7 +169,9 @@ class _DailyOverview extends StatelessWidget {
 }
 
 class _HomePage extends StatelessWidget {
-  const _HomePage();
+  const _HomePage({this.caregiver = false});
+
+  final bool caregiver;
 
   String _saudacao() {
     final h = DateTime.now().hour;
@@ -208,7 +223,11 @@ class _HomePage extends StatelessWidget {
           ).copyWith(bottom: 100),
           children: [
             const SizedBox(height: 20),
-            _DailyOverview(greeting: _saudacao(), date: _dataFormatada()),
+            _DailyOverview(
+              greeting: _saudacao(),
+              date: _dataFormatada(),
+              showProgress: caregiver,
+            ),
             const SizedBox(height: 28),
             Text(
               'Acesso rápido',

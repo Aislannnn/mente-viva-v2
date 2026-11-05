@@ -9,6 +9,7 @@ class _NavItem extends StatelessWidget {
   final Color selectedColor;
   final Color iconColor;
   final ValueChanged<int> onTap;
+  final bool large;
 
   const _NavItem({
     required this.icon,
@@ -19,6 +20,7 @@ class _NavItem extends StatelessWidget {
     required this.selectedColor,
     required this.iconColor,
     required this.onTap,
+    this.large = false,
   });
 
   @override
@@ -30,7 +32,7 @@ class _NavItem extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 180),
-          padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 6),
+          padding: EdgeInsets.symmetric(horizontal: 2, vertical: large ? 8 : 6),
           decoration: BoxDecoration(
             color: isSelected
                 ? selectedColor.withValues(alpha: 0.11)
@@ -43,7 +45,7 @@ class _NavItem extends StatelessWidget {
               Icon(
                 isSelected ? activeIcon : icon,
                 color: isSelected ? selectedColor : iconColor,
-                size: 23,
+                size: large ? 28 : 23,
               ),
               const SizedBox(height: 4),
               Text(
@@ -52,7 +54,7 @@ class _NavItem extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   color: isSelected ? selectedColor : iconColor,
-                  fontSize: 11,
+                  fontSize: large ? 14 : 11,
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                 ),
               ),
