@@ -20,3 +20,7 @@ Uma conclusão só é registrada após as três rodadas ou palavras. Sair antes 
 `core/app_state.dart` ainda é um estado global de demonstração com `ValueNotifier`, dados iniciais e ações de tela. Essa área é legada e ainda precisa migrar suas operações para casos de uso e repositórios próprios. Portanto, **a migração para Clean Architecture ainda não está completa em rotina, álbum e configurações**. A versão atual não tem persistência nem sincronização entre dispositivos.
 
 O workflow executa testes, análise estática e build web. Os testes de jogos cobrem regras, partidas completas e largura de celular.
+
+## Acesso de demonstração
+
+`features/auth/domain/access_role.dart` define os dois perfis sem depender de Flutter. A apresentação separa a escolha de perfil da tela de acesso. Os botões Google, Apple e e-mail apenas explicam a futura integração; não solicitam credenciais, não conectam contas e não concedem permissões reais. “Entrar sem conta (demonstração)” usa o perfil escolhido no estado temporário existente. O controle de acesso real dependerá da futura integração com Supabase, incluindo autorização do lado do serviço.

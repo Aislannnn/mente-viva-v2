@@ -52,15 +52,9 @@ class _MainScreenState extends State<MainScreen> {
                         padding: const EdgeInsets.fromLTRB(20, 8, 12, 0),
                         child: Row(
                           children: [
-                            if (_currentIndex == 2)
-                              IconButton(
-                                tooltip: 'Voltar para Hoje',
-                                onPressed: () => _selectTab(0),
-                                icon: const Icon(Icons.arrow_back_rounded),
-                              ),
                             Expanded(
                               child: Text(
-                                _currentIndex == 2 ? 'Lembretes' : 'Mente Viva',
+                                'Mente Viva',
                                 style: TextStyle(
                                   color: escuro ? Colors.white : AppColors.ink,
                                   fontSize: 18,
@@ -118,9 +112,7 @@ class _MainScreenState extends State<MainScreen> {
                           activeIcon: Icons.home,
                           label: eCuidador ? 'Início' : 'Hoje',
                           index: 0,
-                          currentIndex: _currentIndex == 2 && !eCuidador
-                              ? 0
-                              : _currentIndex,
+                          currentIndex: _currentIndex,
                           selectedColor: selectedColor,
                           iconColor: iconColor,
                           large: !eCuidador,
@@ -137,17 +129,17 @@ class _MainScreenState extends State<MainScreen> {
                           large: !eCuidador,
                           onTap: _selectTab,
                         ),
-                        if (eCuidador)
-                          _NavItem(
-                            icon: Icons.notifications_outlined,
-                            activeIcon: Icons.notifications,
-                            label: 'Lembretes',
-                            index: 2,
-                            currentIndex: _currentIndex,
-                            selectedColor: selectedColor,
-                            iconColor: iconColor,
-                            onTap: _selectTab,
-                          ),
+                        _NavItem(
+                          icon: Icons.notifications_outlined,
+                          activeIcon: Icons.notifications,
+                          label: 'Lembretes',
+                          index: 2,
+                          currentIndex: _currentIndex,
+                          selectedColor: selectedColor,
+                          iconColor: iconColor,
+                          large: !eCuidador,
+                          onTap: _selectTab,
+                        ),
                         _NavItem(
                           icon: Icons.photo_album_outlined,
                           activeIcon: Icons.photo_album,

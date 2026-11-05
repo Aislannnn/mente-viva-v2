@@ -54,7 +54,7 @@ class _NavItem extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
                   color: isSelected ? selectedColor : iconColor,
-                  fontSize: large ? 14 : 11,
+                  fontSize: large ? 13 : 11,
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                 ),
               ),

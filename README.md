@@ -24,7 +24,7 @@ flutter build web --release --base-href /mente-viva-v2/
 - `lib/features/home/domain/entities.dart`: modelos de rotina e pessoas sem Flutter.
 - `lib/core/app_state.dart`: estado de demonstração da interface antiga, ainda em memória.
 - `lib/core/design_tokens.dart` e `theme.dart`: paleta e tema.
-- `lib/features/auth/`: abertura e seleção de perfil.
+- `lib/features/auth/`: seleção de perfil e prévia de acesso separada para Pessoa Assistida e Cuidador.
 - `lib/features/home/parts/`: navegação, painel, lembretes, álbum, formulários e configurações.
 - `lib/features/games/domain/`: regras puras dos jogos e caso de uso de conclusão.
 - `lib/features/games/data/`: repositório e estatísticas em memória.
@@ -32,7 +32,7 @@ flutter build web --release --base-href /mente-viva-v2/
 - `lib/app/`: montagem das dependências.
 - `test/`: testes de regras, jogos completos, navegação e limites de arquitetura.
 
-Os dados atuais são mantidos em memória e reiniciam quando o aplicativo fecha. A estrutura e as decisões de design estão documentadas em [docs/architecture.md](docs/architecture.md) e [docs/design.md](docs/design.md).
+Google, Apple e e-mail são opções de interface em preparação: não autenticam contas. O botão de demonstração abre o perfil escolhido. Os dados atuais são mantidos em memória e reiniciam quando o aplicativo fecha. A estrutura e as decisões de design estão documentadas em [docs/architecture.md](docs/architecture.md) e [docs/design.md](docs/design.md).
 
 ## Publicação web
 

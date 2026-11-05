@@ -18,6 +18,20 @@ void main() {
 
     await tester.tap(find.text('Pessoa Assistida'));
     await tester.pumpAndSettle();
+    expect(find.text('Acesso de Pessoa Assistida'), findsOneWidget);
+    expect(find.text('Continuar com Google'), findsOneWidget);
+    expect(find.text('Continuar com Apple'), findsOneWidget);
+    expect(find.text('Continuar com e-mail'), findsOneWidget);
+    expect(find.text('Hoje'), findsNothing);
+
+    await tester.tap(find.text('Continuar com Google'));
+    await tester.pumpAndSettle();
+    expect(find.text('Acesso com Google em preparação'), findsOneWidget);
+    await tester.tap(find.text('Entendi'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Entrar sem conta (demonstração)'));
+    await tester.pumpAndSettle();
     expect(find.text('Hoje'), findsOneWidget);
     expect(find.text('Ver lembretes'), findsOneWidget);
   });
@@ -31,29 +45,57 @@ void main() {
 
     await tester.tap(find.text('Cuidador'));
     await tester.pumpAndSettle();
+    expect(find.text('Acesso de Cuidador'), findsOneWidget);
+    await tester.tap(find.text('Entrar sem conta (demonstração)'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Lembretes').last);
     await tester.pumpAndSettle();
 
     expect(find.byType(FloatingActionButton), findsOneWidget);
   });
 
+  testWidgets('Opções de acesso são alcançáveis em celular compacto', (
+    WidgetTester tester,
+  ) async {
+    tester.view.physicalSize = const Size(320, 568);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await tester.pumpWidget(const MyApp());
+    await tester.pump(const Duration(seconds: 2));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Cuidador'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Cuidador'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Entrar sem conta (demonstração)'), findsOneWidget);
+    await tester.ensureVisible(find.text('Continuar com e-mail'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Continuar com e-mail'));
+    await tester.pumpAndSettle();
+    expect(find.text('Acesso com e-mail em preparação'), findsOneWidget);
+  });
+
   testWidgets(
-    'Pessoa assistida acessa lembretes e configurações com três abas',
+    'Pessoa assistida acessa lembretes e configurações com quatro abas',
     (WidgetTester tester) async {
       await tester.pumpWidget(const MyApp());
       await tester.pump(const Duration(seconds: 2));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Pessoa Assistida'));
       await tester.pumpAndSettle();
+      await tester.tap(find.text('Entrar sem conta (demonstração)'));
+      await tester.pumpAndSettle();
 
       expect(find.text('Hoje'), findsOneWidget);
       expect(find.text('Agora'), findsOneWidget);
       expect(find.text('Config.'), findsNothing);
-    await tester.tap(find.text('Ver lembretes'));
+      await tester.tap(find.text('Lembretes').last);
       await tester.pumpAndSettle();
-      expect(find.byTooltip('Voltar para Hoje'), findsOneWidget);
-      await tester.tap(find.byTooltip('Voltar para Hoje'));
-      await tester.pumpAndSettle();
+      expect(find.text('Pendentes'), findsOneWidget);
+      expect(find.text('Lembretes'), findsWidgets);
 
       await tester.tap(find.text('Jogos').last);
       await tester.pumpAndSettle();
@@ -88,6 +130,8 @@ void main() {
     );
     expect(tester.getSize(profileBackground.first).height, 844);
     await tester.tap(find.text('Pessoa Assistida'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Entrar sem conta (demonstração)'));
     await tester.pumpAndSettle();
     expect(find.text('Seu dia, no seu ritmo.'), findsOneWidget);
     expect(find.text('Progresso de hoje'), findsNothing);

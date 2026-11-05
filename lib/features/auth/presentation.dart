@@ -4,7 +4,8 @@ import 'package:flutter/material.dart';
 
 import '../../core/design_tokens.dart';
 import '../../core/app_state.dart';
-import '../home.dart';
+import 'domain/access_role.dart';
+import 'login_preview_screen.dart';
 
 class LoadingScreen extends StatefulWidget {
   const LoadingScreen({super.key});
@@ -201,10 +202,8 @@ class SelecaoPerfilScreen extends StatelessWidget {
                                 'Visualize sua rotina, lembretes\ne álbum de memórias',
                             cor: AppColors.primary,
                             escuro: escuro,
-                            onTap: () {
-                              perfilAtivo.value = 'assistida';
-                              _irParaMain(context);
-                            },
+                            onTap: () =>
+                                _openLogin(context, AccessRole.assisted),
                           ),
                           const SizedBox(height: 20),
                           _CardPerfil(
@@ -214,10 +213,8 @@ class SelecaoPerfilScreen extends StatelessWidget {
                                 'Gerencie lembretes, álbum,\nprogresso e estatísticas',
                             cor: AppColors.caregiver,
                             escuro: escuro,
-                            onTap: () {
-                              perfilAtivo.value = 'cuidador';
-                              _irParaMain(context);
-                            },
+                            onTap: () =>
+                                _openLogin(context, AccessRole.caregiver),
                           ),
                         ],
                       ),
@@ -232,10 +229,10 @@ class SelecaoPerfilScreen extends StatelessWidget {
     );
   }
 
-  void _irParaMain(BuildContext context) {
-    Navigator.of(
-      context,
-    ).pushReplacement(MaterialPageRoute(builder: (_) => const MainScreen()));
+  void _openLogin(BuildContext context, AccessRole role) {
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(builder: (_) => LoginPreviewScreen(role: role)),
+    );
   }
 }
 
