@@ -20,9 +20,8 @@ class _LembretesPage extends StatelessWidget {
             final concluidos = lista.where((l) => l.concluido).toList();
 
             return ListView(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 20,
-              ).copyWith(top: 20, bottom: 100),
+              padding: const EdgeInsets.symmetric(horizontal: 20)
+                  .copyWith(top: 20, bottom: 100),
               children: [
                 SectionHero(
                   icon: Icons.notifications_outlined,
@@ -36,7 +35,7 @@ class _LembretesPage extends StatelessWidget {
                     'Pendentes',
                     style: TextStyle(
                       color: textColor,
-                      fontSize: 15,
+                      fontSize: eCuidador ? 15 : 18,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -58,7 +57,7 @@ class _LembretesPage extends StatelessWidget {
                     'Concluídos hoje',
                     style: TextStyle(
                       color: subColor,
-                      fontSize: 15,
+                      fontSize: eCuidador ? 15 : 18,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -87,9 +86,14 @@ class _LembretesPage extends StatelessWidget {
                           ),
                           const SizedBox(height: 12),
                           Text(
-                            'Nenhum lembrete ainda.\nToque no + para adicionar.',
+                            eCuidador
+                                ? 'Nenhum lembrete ainda.\nToque no + para adicionar.'
+                                : 'Nenhum lembrete cadastrado.',
                             textAlign: TextAlign.center,
-                            style: TextStyle(color: subColor, fontSize: 14),
+                            style: TextStyle(
+                              color: subColor,
+                              fontSize: eCuidador ? 14 : 16,
+                            ),
                           ),
                         ],
                       ),
@@ -227,7 +231,7 @@ class _LembreteCard extends StatelessWidget {
                           l.titulo,
                           style: TextStyle(
                             color: l.concluido ? subColor : textColor,
-                            fontSize: 14,
+                            fontSize: eCuidador ? 14 : 18,
                             fontWeight: FontWeight.w600,
                             decoration: l.concluido
                                 ? TextDecoration.lineThrough
@@ -236,7 +240,10 @@ class _LembreteCard extends StatelessWidget {
                         ),
                         Text(
                           l.descricao,
-                          style: TextStyle(color: subColor, fontSize: 12),
+                          style: TextStyle(
+                            color: subColor,
+                            fontSize: eCuidador ? 12 : 16,
+                          ),
                         ),
                       ],
                     ),
@@ -255,9 +262,9 @@ class _LembreteCard extends StatelessWidget {
                         ),
                         child: Text(
                           l.horario,
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: AppColors.primary,
-                            fontSize: 12,
+                            fontSize: eCuidador ? 12 : 16,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -266,7 +273,10 @@ class _LembreteCard extends StatelessWidget {
                         const SizedBox(height: 4),
                         Text(
                           'Concluído às ${_fmtHora(l.concluidoEm!)}',
-                          style: TextStyle(color: subColor, fontSize: 10),
+                          style: TextStyle(
+                            color: subColor,
+                            fontSize: eCuidador ? 10 : 14,
+                          ),
                         ),
                       ],
                     ],
@@ -725,3 +735,4 @@ class _CriarLembreteSheetState extends State<_CriarLembreteSheet> {
     );
   }
 }
+

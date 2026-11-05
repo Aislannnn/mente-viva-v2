@@ -5,7 +5,7 @@ class _HomePageCuidador extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const _HomePage(caregiver: true);
+    return const _CaregiverDashboard();
   }
 }
 
@@ -80,9 +80,9 @@ class _DailyOverview extends StatelessWidget {
                               ),
                               Text(
                                 date,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   color: Colors.white70,
-                                  fontSize: 13,
+                                  fontSize: showProgress ? 13 : 16,
                                 ),
                               ),
                             ],
@@ -171,6 +171,31 @@ class _DailyOverview extends StatelessWidget {
 class _AssistedReminderCard extends StatelessWidget {
   const _AssistedReminderCard();
 
+  void _concluir(BuildContext context, Lembrete item) {
+    final index = lembretes.value.indexOf(item);
+    if (index < 0) return;
+    final updated = List<Lembrete>.from(lembretes.value);
+    updated[index].concluido = true;
+    updated[index].concluidoEm = DateTime.now();
+    lembretes.value = updated;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('${item.titulo} marcado como feito'),
+        behavior: SnackBarBehavior.floating,
+        margin: const EdgeInsets.fromLTRB(16, 0, 16, 96),
+        action: SnackBarAction(
+          label: 'Desfazer',
+          onPressed: () {
+            if (!lembretes.value.contains(item)) return;
+            item.concluido = false;
+            item.concluidoEm = null;
+            lembretes.value = List<Lembrete>.from(lembretes.value);
+          },
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final escuro = Theme.of(context).brightness == Brightness.dark;
@@ -232,15 +257,23 @@ class _AssistedReminderCard extends StatelessWidget {
                   style: TextStyle(color: subColor, fontSize: 16),
                 ),
               ],
-              const SizedBox(height: 18),
-              FilledButton(
+              if (next != null) ...[
+                const SizedBox(height: 18),
+                FilledButton.icon(
+                  onPressed: () => _concluir(context, next),
+                  icon: const Icon(Icons.check_circle_outline),
+                  label: const Text('Já fiz'),
+                  style: FilledButton.styleFrom(
+                    minimumSize: const Size.fromHeight(56),
+                    textStyle: const TextStyle(fontSize: 18),
+                  ),
+                ),
+              ],
+              TextButton(
                 onPressed: () => context
                     .findAncestorStateOfType<_MainScreenState>()
                     ?._selectTab(2),
-                child: const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 12),
-                  child: Text('Ver lembretes'),
-                ),
+                child: const Text('Ver todos os lembretes'),
               ),
             ],
           ),
@@ -251,14 +284,12 @@ class _AssistedReminderCard extends StatelessWidget {
 }
 
 class _HomePage extends StatelessWidget {
-  const _HomePage({this.caregiver = false});
-
-  final bool caregiver;
+  const _HomePage();
 
   String _saudacao() {
-    final h = DateTime.now().hour;
-    if (h < 12) return 'Bom dia';
-    if (h < 18) return 'Boa tarde';
+    final hour = DateTime.now().hour;
+    if (hour < 12) return 'Bom dia';
+    if (hour < 18) return 'Boa tarde';
     return 'Boa noite';
   }
 
@@ -286,335 +317,73 @@ class _HomePage extends StatelessWidget {
       'Sexta-feira',
       'Sábado',
     ];
-    final n = DateTime.now();
-    return '${dias[n.weekday % 7]}, ${n.day} de ${meses[n.month - 1]}';
+    final now = DateTime.now();
+    return '${dias[now.weekday % 7]}, ${now.day} de ${meses[now.month - 1]}';
   }
 
   @override
   Widget build(BuildContext context) {
     return ValueListenableBuilder<bool>(
       valueListenable: modoEscuro,
-      builder: (context, escuro, _) {
-        final textColor = escuro ? Colors.white : AppColors.ink;
-        final subColor = escuro ? Colors.white60 : AppColors.muted;
-        final cardColor = escuro ? AppColors.nightSurface : Colors.white;
-
+      builder: (context, dark, _) {
+        final foreground = dark ? Colors.white : AppColors.ink;
+        final muted = dark ? Colors.white70 : AppColors.muted;
+        final card = dark ? AppColors.nightSurface : Colors.white;
         return ListView(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 20,
-          ).copyWith(bottom: 100),
+          padding: const EdgeInsets.fromLTRB(20, 20, 20, 100),
           children: [
-            const SizedBox(height: 20),
             _DailyOverview(
               greeting: _saudacao(),
               date: _dataFormatada(),
-              showProgress: caregiver,
+              showProgress: false,
             ),
             const SizedBox(height: 24),
-            if (caregiver) ...[
-              Text(
-                'Acesso rápido',
-                style: TextStyle(
-                  color: textColor,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  _QuickCard(
-                    icon: Icons.photo_album_outlined,
-                    label: 'Álbum',
-                    color: AppColors.lavender,
-                    escuro: escuro,
-                    onTap: () => context
-                        .findAncestorStateOfType<_MainScreenState>()
-                        ?._selectTab(3),
-                  ),
-                  const SizedBox(width: 12),
-                  _QuickCard(
-                    icon: Icons.sports_esports_outlined,
-                    label: 'Jogos',
-                    color: AppColors.caregiver,
-                    escuro: escuro,
-                    onTap: () => context
-                        .findAncestorStateOfType<_MainScreenState>()
-                        ?._selectTab(1),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-            ] else ...[
-              const _AssistedReminderCard(),
-              const SizedBox(height: 20),
-            ],
-            Row(
-              children: [
-                _QuickCard(
-                  icon: Icons.notifications_outlined,
-                  label: 'Lembretes',
-                  color: AppColors.amber,
-                  escuro: escuro,
-                  onTap: () => context
-                      .findAncestorStateOfType<_MainScreenState>()
-                      ?._selectTab(2),
-                ),
-                const SizedBox(width: 12),
-                _QuickCard(
-                  icon: Icons.bedtime_outlined,
-                  label: 'Registrar horas de sono',
-                  color: AppColors.berry,
-                  escuro: escuro,
-                  onTap: () => showModalBottomSheet(
-                    context: context,
-                    isScrollControlled: true,
-                    backgroundColor: Colors.transparent,
-                    builder: (_) => const _RegistrarSonoSheet(),
-                  ),
-                ),
-              ],
-            ),
+            const _AssistedReminderCard(),
             const SizedBox(height: 24),
             Text(
-              'Rotina de hoje',
+              'Compromissos de hoje',
               style: TextStyle(
-                color: textColor,
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
+                color: foreground,
+                fontSize: 20,
+                fontWeight: FontWeight.w800,
               ),
             ),
             const SizedBox(height: 12),
             ValueListenableBuilder<List<Compromisso>>(
               valueListenable: compromissos,
-              builder: (context, lista, _) {
-                final hoje = lista
-                    .where((c) => _mesmodia(c.data, DateTime.now()))
-                    .toList();
-                if (hoje.isEmpty) {
-                  return Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Text(
-                        'Nenhum compromisso hoje.',
-                        style: TextStyle(color: subColor),
-                      ),
+              builder: (context, items, _) {
+                final now = DateTime.now();
+                final today =
+                    items
+                        .where(
+                          (item) =>
+                              item.data.year == now.year &&
+                              item.data.month == now.month &&
+                              item.data.day == now.day,
+                        )
+                        .toList()
+                      ..sort((a, b) => a.horario.compareTo(b.horario));
+                if (today.isEmpty) {
+                  return Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Text(
+                      'Nenhum compromisso hoje.',
+                      style: TextStyle(color: muted, fontSize: 16),
                     ),
                   );
                 }
                 return Column(
-                  children: hoje
+                  children: today
                       .map(
-                        (c) => _CompromissoCard(
-                          c: c,
-                          cardColor: cardColor,
-                          textColor: textColor,
-                          subColor: subColor,
-                          escuro: escuro,
+                        (item) => _CompromissoCard(
+                          c: item,
+                          cardColor: card,
+                          textColor: foreground,
+                          subColor: muted,
+                          escuro: dark,
                         ),
                       )
                       .toList(),
-                );
-              },
-            ),
-            if (caregiver) ...[
-              const SizedBox(height: 24),
-              Text(
-                'Lembretes de hoje',
-                style: TextStyle(
-                  color: textColor,
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 12),
-              ValueListenableBuilder<List<Lembrete>>(
-                valueListenable: lembretes,
-                builder: (context, lista, _) {
-                  final pendentes = lista
-                      .where((l) => !l.concluido)
-                      .take(3)
-                      .toList();
-                  if (pendentes.isEmpty) {
-                    return Container(
-                      padding: const EdgeInsets.all(18),
-                      decoration: BoxDecoration(
-                        color: AppColors.primary.withValues(alpha: 0.08),
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                      child: Center(
-                        child: Text(
-                          '✓ Todos os lembretes concluídos!',
-                          style: TextStyle(color: subColor),
-                        ),
-                      ),
-                    );
-                  }
-                  return Column(
-                    children: pendentes.map((l) {
-                      final idx = lista.indexOf(l);
-                      return GestureDetector(
-                        onTap: () {
-                          final nova = List<Lembrete>.from(lembretes.value);
-                          nova[idx].concluido = true;
-                          nova[idx].concluidoEm = DateTime.now();
-                          lembretes.value = nova;
-                        },
-                        child: Container(
-                          margin: const EdgeInsets.only(bottom: 10),
-                          padding: const EdgeInsets.all(14),
-                          decoration: BoxDecoration(
-                            color: cardColor,
-                            borderRadius: BorderRadius.circular(14),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.05),
-                                blurRadius: 8,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
-                          ),
-                          child: Row(
-                            children: [
-                              Container(
-                                width: 44,
-                                height: 44,
-                                decoration: BoxDecoration(
-                                  color: AppColors.primary.withValues(
-                                    alpha: 0.08,
-                                  ),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Icon(
-                                  l.icone,
-                                  color: AppColors.primary,
-                                  size: 22,
-                                ),
-                              ),
-                              const SizedBox(width: 14),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      l.titulo,
-                                      style: TextStyle(
-                                        color: textColor,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                    Text(
-                                      l.descricao,
-                                      style: TextStyle(
-                                        color: subColor,
-                                        fontSize: 12,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 4,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: AppColors.primary.withValues(
-                                    alpha: 0.08,
-                                  ),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Text(
-                                  l.horario,
-                                  style: const TextStyle(
-                                    color: AppColors.primary,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                  );
-                },
-              ),
-            ],
-            const SizedBox(height: 24),
-            Text(
-              'Pessoas visitadas recentemente',
-              style: TextStyle(
-                color: textColor,
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 12),
-            ValueListenableBuilder<List<VisitaRegistro>>(
-              valueListenable: visitas,
-              builder: (context, lista, _) {
-                if (lista.isEmpty) {
-                  return Text(
-                    'Nenhuma visita registrada.',
-                    style: TextStyle(color: subColor, fontSize: 13),
-                  );
-                }
-                return Column(
-                  children: lista.take(3).map((v) {
-                    return Container(
-                      margin: const EdgeInsets.only(bottom: 8),
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: cardColor,
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 36,
-                            height: 36,
-                            decoration: BoxDecoration(
-                              color: AppColors.caregiver.withValues(
-                                alpha: 0.12,
-                              ),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            child: const Icon(
-                              Icons.people_outline,
-                              color: AppColors.caregiver,
-                              size: 18,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  v.nomePessoa,
-                                  style: TextStyle(
-                                    color: textColor,
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                                Text(
-                                  _formatarData(v.data),
-                                  style: TextStyle(
-                                    color: subColor,
-                                    fontSize: 11,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  }).toList(),
                 );
               },
             ),
@@ -622,16 +391,6 @@ class _HomePage extends StatelessWidget {
         );
       },
     );
-  }
-
-  bool _mesmodia(DateTime a, DateTime b) =>
-      a.year == b.year && a.month == b.month && a.day == b.day;
-
-  String _formatarData(DateTime d) {
-    final diff = DateTime.now().difference(d).inDays;
-    if (diff == 0) return 'Hoje';
-    if (diff == 1) return 'Ontem';
-    return 'Há $diff dias';
   }
 }
 
@@ -685,8 +444,8 @@ class _CompromissoCard extends StatelessWidget {
         child: Row(
           children: [
             Container(
-              width: 44,
-              height: 44,
+              width: 56,
+              height: 56,
               decoration: BoxDecoration(
                 color: AppColors.primary.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(12),
@@ -694,7 +453,7 @@ class _CompromissoCard extends StatelessWidget {
               child: Icon(
                 c.realizado ? Icons.check_circle_outline : Icons.event_outlined,
                 color: AppColors.primary,
-                size: 22,
+                size: 26,
               ),
             ),
             const SizedBox(width: 14),
@@ -706,7 +465,7 @@ class _CompromissoCard extends StatelessWidget {
                     c.titulo,
                     style: TextStyle(
                       color: c.realizado ? subColor : textColor,
-                      fontSize: 14,
+                      fontSize: 18,
                       fontWeight: FontWeight.w600,
                       decoration: c.realizado
                           ? TextDecoration.lineThrough
@@ -715,7 +474,7 @@ class _CompromissoCard extends StatelessWidget {
                   ),
                   Text(
                     c.descricao,
-                    style: TextStyle(color: subColor, fontSize: 12),
+                    style: TextStyle(color: subColor, fontSize: 16),
                   ),
                 ],
               ),
@@ -730,7 +489,7 @@ class _CompromissoCard extends StatelessWidget {
                 c.horario,
                 style: const TextStyle(
                   color: AppColors.primary,
-                  fontSize: 12,
+                  fontSize: 16,
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -741,3 +500,4 @@ class _CompromissoCard extends StatelessWidget {
     );
   }
 }
+

@@ -2,8 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:mente_viva/main.dart';
+import 'package:mente_viva/core/app_state.dart';
 
 void main() {
+  testWidgets('Escala do app preserva a ampliação do sistema', (
+    WidgetTester tester,
+  ) async {
+    tester.platformDispatcher.textScaleFactorTestValue = 1.5;
+    escalaFonte.value = 1.2;
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    addTearDown(() => escalaFonte.value = 1.0);
+
+    await tester.pumpWidget(const MyApp());
+    final textContext = tester.element(find.text('CARREGANDO...'));
+    final scaler = MediaQuery.textScalerOf(textContext);
+    expect(scaler.scale(16), closeTo(28.8, 0.01));
+    await tester.pump(const Duration(seconds: 2));
+    await tester.pumpAndSettle();
+  });
+
   testWidgets('Mente Viva app starts on the loading screen', (
     WidgetTester tester,
   ) async {
@@ -33,7 +50,27 @@ void main() {
     await tester.tap(find.text('Entrar sem conta (demonstração)'));
     await tester.pumpAndSettle();
     expect(find.text('Hoje'), findsOneWidget);
-    expect(find.text('Ver lembretes'), findsOneWidget);
+    expect(find.text('Já fiz'), findsOneWidget);
+    expect(find.text('Ver todos os lembretes'), findsOneWidget);
+    expect(find.text('Registrar horas de sono'), findsNothing);
+    expect(find.byTooltip('Registrar visita'), findsNothing);
+
+    final pendingBefore = lembretes.value
+        .where((item) => !item.concluido)
+        .length;
+    await tester.tap(find.text('Já fiz'));
+    await tester.pump(const Duration(milliseconds: 300));
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(
+      lembretes.value.where((item) => !item.concluido).length,
+      pendingBefore - 1,
+    );
+    await tester.tap(find.text('Desfazer'));
+    await tester.pump();
+    expect(
+      lembretes.value.where((item) => !item.concluido).length,
+      pendingBefore,
+    );
   });
 
   testWidgets('Cuidador pode abrir a área de lembretes', (
@@ -144,4 +181,59 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Álbum de memórias'), findsOneWidget);
   });
+
+  testWidgets('Pessoa assistida usa a navegação com texto ampliado', (
+    WidgetTester tester,
+  ) async {
+    tester.view.physicalSize = const Size(320, 568);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    addTearDown(() => escalaFonte.value = 1.0);
+
+    await tester.pumpWidget(const MyApp());
+    await tester.pump(const Duration(seconds: 2));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Pessoa Assistida'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Entrar sem conta (demonstração)'));
+    await tester.pumpAndSettle();
+
+    escalaFonte.value = 2.0;
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+    await tester.tap(find.text('Lembretes').last);
+    await tester.pumpAndSettle();
+    expect(find.text('Lembretes'), findsNWidgets(2));
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('Cuidador vê o painel de registros em celular compacto', (
+    WidgetTester tester,
+  ) async {
+    tester.view.physicalSize = const Size(320, 568);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    addTearDown(() => escalaFonte.value = 1.0);
+
+    await tester.pumpWidget(const MyApp());
+    await tester.pump(const Duration(seconds: 2));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Cuidador'));
+    await tester.tap(find.text('Cuidador'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Entrar sem conta (demonstração)'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Acompanhamento'), findsOneWidget);
+    expect(find.text('Concluídos'), findsOneWidget);
+    escalaFonte.value = 1.5;
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+    await tester.scrollUntilVisible(find.text('Sono registrado'), 200);
+    expect(find.text('Sono registrado'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
 }
+

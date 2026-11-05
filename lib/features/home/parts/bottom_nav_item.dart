@@ -50,11 +50,12 @@ class _NavItem extends StatelessWidget {
               const SizedBox(height: 4),
               Text(
                 label,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+                maxLines: 3,
+                textAlign: TextAlign.center,
+                softWrap: true,
                 style: TextStyle(
                   color: isSelected ? selectedColor : iconColor,
-                  fontSize: large ? 13 : 11,
+                  fontSize: large ? 14 : 12,
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
                 ),
               ),
@@ -65,3 +66,4 @@ class _NavItem extends StatelessWidget {
     );
   }
 }
+
