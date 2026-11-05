@@ -26,11 +26,37 @@ jobs:
       - run: flutter pub get
       - run: flutter test
       - run: flutter analyze
-      - run: flutter build web --release --base-href "/${{ github.event.repository.name }}/"
-      - run: touch build/web/.nojekyll
+      # Each deployment gets a new asset URL. Browsers that cached an earlier
+      # Flutter bundle can then load the current games without clearing data.
+      - name: Build versioned web release
+        shell: bash
+        run: |
+          set -euo pipefail
+          release="${GITHUB_SHA:0:12}"
+          base="/${{ github.event.repository.name }}/releases/${release}/"
+          flutter build web --release --base-href "$base"
+          mkdir -p "build/site/releases/$release"
+          cp -a build/web/. "build/site/releases/$release/"
+          cat > build/site/index.html <<EOF
+          <!doctype html>
+          <html lang="pt-BR">
+            <head>
+              <meta charset="utf-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1">
+              <title>Mente Viva</title>
+              <meta http-equiv="refresh" content="0;url=./releases/$release/">
+            </head>
+            <body>
+              <p>Carregando a versão atual do Mente Viva…</p>
+              <p><a href="./releases/$release/">Abrir o aplicativo</a></p>
+              <script>location.replace('./releases/$release/');</script>
+            </body>
+          </html>
+          EOF
+          touch build/site/.nojekyll
       - uses: actions/upload-pages-artifact@v4
         with:
-          path: build/web
+          path: build/site
 
   deploy:
     needs: build

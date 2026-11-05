@@ -10,6 +10,7 @@ class _JogoModel {
   final IconData icone;
   final Color cor;
   final int duracaoMin;
+  final bool available;
   const _JogoModel({
     required this.titulo,
     required this.descricao,
@@ -17,6 +18,7 @@ class _JogoModel {
     required this.icone,
     required this.cor,
     required this.duracaoMin,
+    this.available = false,
   });
 }
 
@@ -28,6 +30,7 @@ const _jogosData = [
     icone: Icons.color_lens_outlined,
     cor: AppColors.lavender,
     duracaoMin: 5,
+    available: true,
   ),
   _JogoModel(
     titulo: 'Complete a palavra',
@@ -36,6 +39,7 @@ const _jogosData = [
     icone: Icons.text_fields_outlined,
     cor: AppColors.primary,
     duracaoMin: 10,
+    available: true,
   ),
   _JogoModel(
     titulo: 'Encontre o par',
@@ -139,87 +143,114 @@ class JogosPage extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 12),
-        ..._jogosData.map(
-          (j) => Padding(
-            padding: const EdgeInsets.only(bottom: 12),
-            child: Material(
-              color: escuro ? AppColors.nightSurface : Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(22),
-                side: BorderSide(
-                  color: escuro ? AppColors.nightCard : AppColors.line,
+        ..._jogosData
+            .where((j) => j.available)
+            .map((j) => _gameCard(context, j, escuro, textColor, subColor)),
+        const SizedBox(height: 12),
+        Text(
+          'Em breve',
+          style: TextStyle(
+            color: textColor,
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 12),
+        ..._jogosData
+            .where((j) => !j.available)
+            .map((j) => _gameCard(context, j, escuro, textColor, subColor)),
+      ],
+    );
+  }
+
+  Widget _gameCard(
+    BuildContext context,
+    _JogoModel j,
+    bool escuro,
+    Color textColor,
+    Color subColor,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: Material(
+        color: escuro ? AppColors.nightSurface : Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(22),
+          side: BorderSide(
+            color: escuro ? AppColors.nightCard : AppColors.line,
+          ),
+        ),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(22),
+          onTap: j.available
+              ? () => _mostrarDetalhes(context, j, escuro)
+              : null,
+          child: Padding(
+            padding: const EdgeInsets.all(17),
+            child: Row(
+              children: [
+                Container(
+                  width: 58,
+                  height: 58,
+                  decoration: BoxDecoration(
+                    color: j.cor.withValues(alpha: 0.13),
+                    borderRadius: BorderRadius.circular(18),
+                  ),
+                  child: Icon(j.icone, color: j.cor, size: 29),
                 ),
-              ),
-              child: InkWell(
-                borderRadius: BorderRadius.circular(22),
-                onTap: () => _mostrarDetalhes(context, j, escuro),
-                child: Padding(
-                  padding: const EdgeInsets.all(17),
-                  child: Row(
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Container(
-                        width: 58,
-                        height: 58,
-                        decoration: BoxDecoration(
-                          color: j.cor.withValues(alpha: 0.13),
-                          borderRadius: BorderRadius.circular(18),
-                        ),
-                        child: Icon(j.icone, color: j.cor, size: 29),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              j.titulo,
-                              style: TextStyle(
-                                color: textColor,
-                                fontSize: 15,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                            const SizedBox(height: 3),
-                            Text(
-                              j.descricao,
-                              style: TextStyle(color: subColor, fontSize: 12),
-                            ),
-                            const SizedBox(height: 7),
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.timer_outlined,
-                                  color: j.cor,
-                                  size: 15,
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  j.duracao,
-                                  style: TextStyle(
-                                    color: j.cor,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
+                      Text(
+                        j.titulo,
+                        style: TextStyle(
+                          color: textColor,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
-                      const SizedBox(width: 8),
-                      Icon(
-                        Icons.arrow_forward_ios_rounded,
-                        color: subColor,
-                        size: 14,
+                      const SizedBox(height: 3),
+                      Text(
+                        j.descricao,
+                        style: TextStyle(color: subColor, fontSize: 12),
+                      ),
+                      const SizedBox(height: 7),
+                      Row(
+                        children: [
+                          Icon(Icons.timer_outlined, color: j.cor, size: 15),
+                          const SizedBox(width: 4),
+                          Text(
+                            j.duracao,
+                            style: TextStyle(
+                              color: j.cor,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
                 ),
-              ),
+                const SizedBox(width: 8),
+                if (j.available)
+                  Icon(
+                    Icons.arrow_forward_ios_rounded,
+                    color: subColor,
+                    size: 14,
+                  )
+                else
+                  Text(
+                    'Em breve',
+                    style: TextStyle(color: subColor, fontSize: 12),
+                  ),
+              ],
             ),
           ),
         ),
-      ],
+      ),
     );
   }
 
@@ -328,7 +359,6 @@ class _DetalhesJogoSheet extends StatelessWidget {
 
   void _startGame(BuildContext context) {
     final navigator = Navigator.of(context);
-    final messenger = ScaffoldMessenger.of(context);
     navigator.pop();
     if (jogo.titulo == 'Sequência de cores') {
       navigator.push(
@@ -345,10 +375,6 @@ class _DetalhesJogoSheet extends StatelessWidget {
             onCompleted: (elapsed) => completeGame(jogo.titulo, elapsed),
           ),
         ),
-      );
-    } else {
-      messenger.showSnackBar(
-        SnackBar(content: Text('${jogo.titulo} — em breve!')),
       );
     }
   }
