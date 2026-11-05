@@ -181,6 +181,8 @@ class _AssistedReminderCard extends StatelessWidget {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('${item.titulo} marcado como feito'),
+        behavior: SnackBarBehavior.floating,
+        margin: const EdgeInsets.fromLTRB(16, 0, 16, 96),
         action: SnackBarAction(
           label: 'Desfazer',
           onPressed: () {
