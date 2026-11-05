@@ -5,6 +5,22 @@ import 'package:mente_viva/main.dart';
 import 'package:mente_viva/core/app_state.dart';
 
 void main() {
+  testWidgets('Escala do app preserva a ampliação do sistema', (
+    WidgetTester tester,
+  ) async {
+    tester.platformDispatcher.textScaleFactorTestValue = 1.5;
+    escalaFonte.value = 1.2;
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    addTearDown(() => escalaFonte.value = 1.0);
+
+    await tester.pumpWidget(const MyApp());
+    final textContext = tester.element(find.text('CARREGANDO...'));
+    final scaler = MediaQuery.textScalerOf(textContext);
+    expect(scaler.scale(16), closeTo(28.8, 0.01));
+    await tester.pump(const Duration(seconds: 2));
+    await tester.pumpAndSettle();
+  });
+
   testWidgets('Mente Viva app starts on the loading screen', (
     WidgetTester tester,
   ) async {
