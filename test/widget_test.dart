@@ -70,6 +70,13 @@ void main() {
     await tester.pumpWidget(const MyApp());
     await tester.pump(const Duration(seconds: 2));
     await tester.pumpAndSettle();
+    final profileBackground = find.byWidgetPredicate(
+      (widget) =>
+          widget is Container &&
+          widget.decoration is BoxDecoration &&
+          (widget.decoration! as BoxDecoration).gradient != null,
+    );
+    expect(tester.getSize(profileBackground.first).height, 844);
     await tester.tap(find.text('Pessoa Assistida'));
     await tester.pumpAndSettle();
     expect(find.text('Progresso de hoje'), findsOneWidget);

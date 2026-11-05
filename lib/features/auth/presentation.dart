@@ -130,21 +130,21 @@ class SelecaoPerfilScreen extends StatelessWidget {
         const textColor = Colors.white;
         return Scaffold(
           backgroundColor: bg,
-          body: SafeArea(
-            child: Container(
-              width: double.infinity,
-              height: double.infinity,
-              decoration: const BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    AppColors.splashStart,
-                    AppColors.primary,
-                    AppColors.splashEnd,
-                  ],
-                ),
+          body: Container(
+            width: double.infinity,
+            height: double.infinity,
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  AppColors.splashStart,
+                  AppColors.primary,
+                  AppColors.splashEnd,
+                ],
               ),
+            ),
+            child: SafeArea(
               child: SingleChildScrollView(
                 child: Center(
                   child: ConstrainedBox(
