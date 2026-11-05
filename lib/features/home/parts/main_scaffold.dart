@@ -200,12 +200,14 @@ class _MainScreenState extends State<MainScreen> {
         child: const Icon(Icons.person_add_outlined, color: Colors.white),
       );
     }
-    if (_currentIndex == 0 && perfilAtivo.value == 'assistida') {
-      return FloatingActionButton.small(
+    if (_currentIndex == 0 && eCuidador) {
+      return FloatingActionButton.extended(
         onPressed: () => _registrarVisita(context),
         backgroundColor: AppColors.caregiver,
         tooltip: 'Registrar visita',
-        child: const Icon(Icons.people_outline, color: Colors.white, size: 20),
+        foregroundColor: Colors.white,
+        icon: const Icon(Icons.people_outline),
+        label: const Text('Registrar visita'),
       );
     }
     return null;
@@ -220,3 +222,4 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 }
+
