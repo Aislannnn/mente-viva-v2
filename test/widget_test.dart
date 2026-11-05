@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:mente_viva/main.dart';
+import 'package:mente_viva/core/app_state.dart';
 
 void main() {
   testWidgets('Mente Viva app starts on the loading screen', (
@@ -33,7 +34,22 @@ void main() {
     await tester.tap(find.text('Entrar sem conta (demonstração)'));
     await tester.pumpAndSettle();
     expect(find.text('Hoje'), findsOneWidget);
-    expect(find.text('Ver lembretes'), findsOneWidget);
+    expect(find.text('Já fiz'), findsOneWidget);
+    expect(find.text('Ver todos os lembretes'), findsOneWidget);
+    expect(find.text('Registrar horas de sono'), findsNothing);
+    expect(find.byTooltip('Registrar visita'), findsNothing);
+
+    final pendingBefore = lembretes.value.where((item) => !item.concluido).length;
+    await tester.tap(find.text('Já fiz'));
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(lembretes.value.where((item) => !item.concluido).length,
+        pendingBefore - 1);
+    final completed = lembretes.value.firstWhere((item) => item.concluido);
+    completed.concluido = false;
+    completed.concluidoEm = null;
+    lembretes.value = List<Lembrete>.from(lembretes.value);
+    expect(lembretes.value.where((item) => !item.concluido).length,
+        pendingBefore);
   });
 
   testWidgets('Cuidador pode abrir a área de lembretes', (
@@ -144,4 +160,32 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Álbum de memórias'), findsOneWidget);
   });
+
+  testWidgets('Pessoa assistida usa a navegação com texto ampliado', (
+    WidgetTester tester,
+  ) async {
+    tester.view.physicalSize = const Size(390, 844);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    addTearDown(() => escalaFonte.value = 1.0);
+
+    await tester.pumpWidget(const MyApp());
+    await tester.pump(const Duration(seconds: 2));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Pessoa Assistida'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Entrar sem conta (demonstração)'));
+    await tester.pumpAndSettle();
+
+    escalaFonte.value = 2.0;
+    await tester.pumpAndSettle();
+    expect(tester.takeException(), isNull);
+    await tester.tap(find.text('Lembretes').last);
+    await tester.pumpAndSettle();
+    expect(find.text('Pendentes'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
 }
+
+
