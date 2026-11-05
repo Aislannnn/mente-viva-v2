@@ -25,24 +25,17 @@ jobs:
           flutter-version: '3.47.2'
       - run: flutter pub get
       - run: flutter test
+      - run: flutter test test/widget_test.dart --dart-define=SUPABASE_URL=https://example.supabase.co --dart-define=SUPABASE_PUBLISHABLE_KEY=demo-key
       - run: flutter analyze
       # Each deployment gets a new asset URL. Browsers that cached an earlier
       # Flutter bundle can then load the current games without clearing data.
       - name: Build versioned web release
         shell: bash
-        env:
-          SUPABASE_URL: ${{ vars.SUPABASE_URL || 'https://hdgxxdaedzidkpfmsvra.supabase.co' }}
-          SUPABASE_PUBLISHABLE_KEY: ${{ vars.SUPABASE_PUBLISHABLE_KEY || 'sb_publishable_iFYjAoi7kqylDEuNg_vMtw_T-tNdy-I' }}
         run: |
           set -euo pipefail
           release="${GITHUB_SHA:0:12}"
           base="/${{ github.event.repository.name }}/releases/${release}/"
-          defines=()
-          if [[ -n "$SUPABASE_URL" && -n "$SUPABASE_PUBLISHABLE_KEY" ]]; then
-            defines+=("--dart-define=SUPABASE_URL=$SUPABASE_URL")
-            defines+=("--dart-define=SUPABASE_PUBLISHABLE_KEY=$SUPABASE_PUBLISHABLE_KEY")
-          fi
-          flutter build web --release --base-href "$base" "${defines[@]}"
+          flutter build web --release --base-href "$base"
           mkdir -p "build/site/releases/$release"
           cp -a build/web/. "build/site/releases/$release/"
           cat > build/site/index.html <<EOF

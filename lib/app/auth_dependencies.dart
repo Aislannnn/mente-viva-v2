@@ -7,9 +7,12 @@ const supabaseUrl = String.fromEnvironment('SUPABASE_URL');
 const supabasePublishableKey = String.fromEnvironment(
   'SUPABASE_PUBLISHABLE_KEY',
 );
+const enableSupabaseAuth = bool.fromEnvironment('ENABLE_SUPABASE_AUTH');
 
 bool get authConfigured =>
-    supabaseUrl.isNotEmpty && supabasePublishableKey.isNotEmpty;
+    enableSupabaseAuth &&
+    supabaseUrl.isNotEmpty &&
+    supabasePublishableKey.isNotEmpty;
 
 Future<void> initializeAuth() async {
   if (!authConfigured) return;
