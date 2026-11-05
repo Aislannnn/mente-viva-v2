@@ -46,4 +46,4 @@ Com o Supabase configurado, e-mail e senha autenticam contas e exigem confirmaç
 
 O workflow em `.github/workflows/deploy-pages.yml` testa, analisa, compila e publica no GitHub Pages a cada push em `main`. O Pages deve estar configurado com a origem **GitHub Actions**.
 
-Para habilitar o login no Pages, defina as variáveis de repositório `SUPABASE_URL` e `SUPABASE_PUBLISHABLE_KEY` no GitHub. No Supabase Auth, configure a URL do site como `https://aislannnn.github.io/mente-viva-v2/` e inclua essa URL nos redirecionamentos permitidos.
+O Pages já compila com a URL e a chave publicável do projeto Supabase `mente-viva-v2`. As variáveis de repositório `SUPABASE_URL` e `SUPABASE_PUBLISHABLE_KEY` podem substituí-las em outro ambiente. No Supabase Auth, a URL do site e o redirecionamento permitido são `https://aislannnn.github.io/mente-viva-v2/`.

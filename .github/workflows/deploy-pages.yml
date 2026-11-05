@@ -31,8 +31,8 @@ jobs:
       - name: Build versioned web release
         shell: bash
         env:
-          SUPABASE_URL: ${{ vars.SUPABASE_URL }}
-          SUPABASE_PUBLISHABLE_KEY: ${{ vars.SUPABASE_PUBLISHABLE_KEY }}
+          SUPABASE_URL: ${{ vars.SUPABASE_URL || 'https://hdgxxdaedzidkpfmsvra.supabase.co' }}
+          SUPABASE_PUBLISHABLE_KEY: ${{ vars.SUPABASE_PUBLISHABLE_KEY || 'sb_publishable_iFYjAoi7kqylDEuNg_vMtw_T-tNdy-I' }}
         run: |
           set -euo pipefail
           release="${GITHUB_SHA:0:12}"
