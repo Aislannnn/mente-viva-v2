@@ -44,14 +44,13 @@ void main() {
         .length;
     await tester.tap(find.text('Já fiz'));
     await tester.pump(const Duration(milliseconds: 300));
+    await tester.pump(const Duration(milliseconds: 300));
     expect(
       lembretes.value.where((item) => !item.concluido).length,
       pendingBefore - 1,
     );
-    final completed = lembretes.value.firstWhere((item) => item.concluido);
-    completed.concluido = false;
-    completed.concluidoEm = null;
-    lembretes.value = List<Lembrete>.from(lembretes.value);
+    await tester.tap(find.text('Desfazer'));
+    await tester.pump();
     expect(
       lembretes.value.where((item) => !item.concluido).length,
       pendingBefore,
