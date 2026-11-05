@@ -60,25 +60,7 @@ class _ConfigSheet extends StatelessWidget {
                       fontSize: 13,
                     ),
                   ),
-                  onTap: () async {
-                    if (authConfigured) {
-                      try {
-                        await authRepository.signOut();
-                      } catch (_) {
-                        if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text(
-                                'Não foi possível sair. Tente novamente.',
-                              ),
-                            ),
-                          );
-                        }
-                        return;
-                      }
-                    }
-                    if (!context.mounted) return;
-                    perfilAtivo.value = '';
+                  onTap: () {
                     Navigator.pop(context);
                     Navigator.of(context).pushReplacement(
                       MaterialPageRoute(
@@ -157,7 +139,7 @@ class _ConfigSheet extends StatelessWidget {
                           fontSize: 13,
                           fontWeight: FontWeight.bold,
                         ),
-                        items: ['Padrão', 'Serif', 'Mono']
+                        items: ['Padrão', 'Serif', 'Leitura']
                             .map(
                               (f) => DropdownMenuItem(value: f, child: Text(f)),
                             )
@@ -350,3 +332,4 @@ class _ConfigItem extends StatelessWidget {
     );
   }
 }
+
