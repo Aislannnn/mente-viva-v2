@@ -77,4 +77,23 @@ class SupabaseWorkspaceRepository implements WorkspaceRepository {
   Future<void> redeemInvite(String code) async {
     await _client.rpc('redeem_care_invite', params: {'code': code.trim()});
   }
+
+  @override
+  Future<List<String>> caregiverIds() async {
+    final uid = _client.auth.currentUser?.id;
+    if (uid == null) throw StateError('Entre com sua conta.');
+    final rows = await _client
+        .from('care_links')
+        .select('caregiver_id')
+        .eq('assisted_id', uid);
+    return [for (final row in rows) row['caregiver_id'] as String];
+  }
+
+  @override
+  Future<void> unlinkCaregiver(String caregiverId) async {
+    await _client.rpc(
+      'unlink_caregiver',
+      params: {'target_caregiver_id': caregiverId},
+    );
+  }
 }

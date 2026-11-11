@@ -1,0 +1,47 @@
+name: Build mobile test apps
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  android-test-apk:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: '3.47.2'
+      - run: flutter pub get
+      - name: Build installable test APK
+        run: >-
+          flutter build apk --debug
+          --dart-define=ENABLE_SUPABASE_AUTH=true
+          --dart-define=SUPABASE_URL=https://hdgxxdaedzidkpfmsvra.supabase.co
+          --dart-define=SUPABASE_PUBLISHABLE_KEY=sb_publishable_iFYjAoi7kqylDEuNg_vMtw_T-tNdy-I
+      - uses: actions/upload-artifact@v4
+        with:
+          name: mente-viva-android-test-apk
+          path: build/app/outputs/flutter-apk/app-debug.apk
+          retention-days: 14
+
+  ios-build-check:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v6
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: '3.47.2'
+      - run: flutter pub get
+      - name: Compile iOS without distribution signing
+        run: >-
+          flutter build ios --release --no-codesign
+          --dart-define=ENABLE_SUPABASE_AUTH=true
+          --dart-define=SUPABASE_URL=https://hdgxxdaedzidkpfmsvra.supabase.co
+          --dart-define=SUPABASE_PUBLISHABLE_KEY=sb_publishable_iFYjAoi7kqylDEuNg_vMtw_T-tNdy-I

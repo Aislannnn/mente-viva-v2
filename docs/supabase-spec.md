@@ -1,6 +1,6 @@
 # Supabase do Mente Viva v2 — especificação e escopo
 
-Estado conferido em 05/11/2026 no projeto `mente-viva-v2` (`hdgxxdaedzidkpfmsvra`). Esta página descreve o que **existe**, o que **falta** e o que **não faz parte** da versão atual. O resumo do Projeto Integrador fornecido pela equipe fundamenta as funções de rotina, memória, jogos e acompanhamento; o banco não pretende registrar diagnóstico ou substituir cuidado profissional.
+Estado conferido em 11/11/2026 no projeto `mente-viva-v2` (`hdgxxdaedzidkpfmsvra`). Esta página descreve o que **existe**, o que **falta** e o que **não faz parte** da versão atual. O resumo do Projeto Integrador fornecido pela equipe fundamenta as funções de rotina, memória, jogos e acompanhamento; o banco não pretende registrar diagnóstico ou substituir cuidado profissional.
 
 ## 1. O que pode ser removido do painel
 
@@ -24,7 +24,7 @@ O escopo enxuto é manter um único projeto e **não criar recursos** nos servi�
 - **Cliente:** Flutter Web publicado no GitHub Pages; o código também contém configuração de callback para Android/iOS.
 - **Servidor:** `https://hdgxxdaedzidkpfmsvra.supabase.co`, projeto Supabase ativo na região `us-east-1`.
 - **Credencial no app:** somente a *publishable key*. Nunca inserir `service_role` ou outra chave secreta no Flutter, GitHub Pages ou repositório.
-- **Serviços usados:** Supabase Auth, Postgres e Data API. O app consulta tabelas protegidas por RLS e chama três funções para vínculo e perfil.
+- **Serviços usados:** Supabase Auth, Postgres e Data API. O app consulta tabelas protegidas por RLS e chama quatro funções para vínculo e perfil.
 - **Modos sem conta:** `guest` inicia vazio; `preview` carrega exemplos rotulados. Ambos ficam apenas na memória e não chamam o banco.
 - **Modo com conta:** carrega o registro da Pessoa Assistida e sincroniza alterações. O cuidador só carrega esse registro após aceitar um convite.
 
@@ -35,7 +35,7 @@ O escopo enxuto é manter um único projeto e **não criar recursos** nos servi�
 3. **Primeiro acesso social:** depois de autenticar, a pessoa escolhe uma vez entre Pessoa Assistida e Cuidador. A função `complete_profile_role` grava o perfil somente se ainda estiver vazio; uma conta já classificada não pode trocar de perfil pela interface.
 4. **Fonte de autorização:** as políticas de dados verificam `auth.uid()`, `profiles.role` e `care_links`. O metadado de usuário `display_role` é usado no cadastro inicial, mas **não** decide acesso nas políticas RLS.
 5. **Retorno web:** `Site URL` e redirect permitido estão em `https://aislannnn.github.io/mente-viva-v2/`. O index do Pages preserva parâmetros e fragmento do callback ao encaminhar para a versão publicada.
-6. **Builds nativos:** o código prevê `menteviva://login-callback/`, mas essa URL ainda precisaria entrar na lista de redirects do Supabase antes de testar OAuth em Android/iOS. O app nativo não foi validado com provedor social.
+6. **Builds nativos:** o código prevê `menteviva://login-callback/`, mas essa URL ainda precisa entrar na lista de redirects do Supabase antes de testar OAuth em Android/iOS. O app nativo não foi validado com provedor social.
 
 O callback a cadastrar nos consoles do Google e da Apple é `https://hdgxxdaedzidkpfmsvra.supabase.co/auth/v1/callback`. As credenciais de cada provedor pertencem ao painel do Supabase e aos respectivos consoles, nunca ao repositório.
 
@@ -69,8 +69,9 @@ O banco contém 18 palavras. O aplicativo escolhe **três por data local** de fo
 2. A função invalida convites anteriores ainda abertos dessa pessoa e produz um código aleatório de uso único, válido por **24 horas**. Só o hash é armazenado.
 3. O cuidador autenticado informa o código; `redeem_care_invite(code)` confere prazo e resgate, cria `care_links` e marca o convite como usado.
 4. Depois do vínculo, RLS permite ao cuidador ler e atualizar `app_records` da Pessoa Assistida associada. Sem vínculo, não há acesso aos dados dela.
+5. Qualquer participante pode encerrar o vínculo em Configurações. `unlink_caregiver(target_caregiver_id)` aceita a conta do cuidador vinculado ou a Pessoa Assistida proprietária; a remoção exige autenticação e, na interface, confirmação.
 
-Os endpoints `create_care_invite`, `redeem_care_invite` e `complete_profile_role` são funções `SECURITY DEFINER` expostas apenas a contas autenticadas e validam `auth.uid()` internamente. Esse desenho exige revisão de segurança sempre que as funções forem alteradas.
+Os endpoints `create_care_invite`, `redeem_care_invite`, `unlink_caregiver` e `complete_profile_role` são funções `SECURITY DEFINER` expostas apenas a contas autenticadas e validam `auth.uid()` internamente. Esse desenho exige revisão de segurança sempre que as funções forem alteradas.
 
 ## 6. Segurança e verificações pendentes
 
@@ -80,14 +81,14 @@ Os endpoints `create_care_invite`, `redeem_care_invite` e `complete_profile_role
 | Chaves | Chave publicável no build web; nenhuma chave secreta deve ir ao cliente. |
 | Google e Apple | Criar credenciais nos consoles externos, habilitar provedores no Supabase e testar cadastro/retorno/sessão. |
 | Redirect nativo | Adicionar e testar a URL do aplicativo antes de distribuir Android/iOS. |
-| Conselheiro de segurança | Aponta as três funções `SECURITY DEFINER` acessíveis a autenticados (uso deliberado), `care_invites` sem política direta (deliberado) e proteção contra senhas vazadas desativada (avaliar ativação no painel). |
+| Conselheiro de segurança | Aponta as quatro funções `SECURITY DEFINER` acessíveis a autenticados (uso deliberado), `care_invites` sem política direta (deliberado) e proteção contra senhas vazadas desativada (avaliar ativação no painel). |
 | Privacidade | Exportação/exclusão de dados, retenção, consentimento, backups e tratamento de fotografias/possíveis dados de saúde ainda precisam de decisão antes de uso real com pessoas. |
-| Fotos e notificações | Não implementadas no Supabase. Os lembretes atuais são dados de rotina no app; não há push nem bucket de imagens. |
-| Histórico de migrações | O servidor registra `20261105201031_initial_app_data_and_daily_words` e `20261105204315_complete_oauth_profile_role`; os arquivos locais usam os mesmos prefixos. |
+| Fotos e notificações | Não implementadas no Supabase. Os lembretes da conta são sincronizados no banco e geram alertas locais no Android/iOS da Pessoa Assistida quando ativados; não há push nem bucket de imagens. |
+| Histórico de migrações | O servidor registra também `20261111112414_unlink_caregiver`; os arquivos locais usam o mesmo prefixo. |
 
 ## 7. Critério de suficiência para esta fase
 
-Não criar mais tabelas ou serviços apenas para reduzir a sensação de complexidade do Dashboard. A fase atual precisa de **Auth + cinco tabelas + RLS + três funções**. O restante do painel pode continuar vazio. O próximo passo funcional do Supabase é configurar os provedores sociais e validar com duas contas de teste, uma de cada perfil, incluindo o convite e o isolamento de dados.
+Não criar mais tabelas ou serviços apenas para reduzir a sensação de complexidade do Dashboard. A fase atual precisa de **Auth + cinco tabelas + RLS + quatro funções**. O restante do painel pode continuar vazio. O próximo passo funcional do Supabase é configurar os provedores sociais e validar com duas contas de teste, uma de cada perfil, incluindo o convite, o desfazer do vínculo e o isolamento de dados.
 
 ## Referências
 

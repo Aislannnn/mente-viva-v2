@@ -19,4 +19,6 @@ abstract class WorkspaceRepository {
   Future<int> save(WorkspaceData current, Map<String, dynamic> data);
   Future<String> createInvite();
   Future<void> redeemInvite(String code);
+  Future<List<String>> caregiverIds();
+  Future<void> unlinkCaregiver(String caregiverId);
 }

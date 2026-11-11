@@ -9,6 +9,7 @@ import '../features/games/domain/game_stat.dart';
 import '../features/home/data/supabase_workspace_repository.dart';
 import '../features/home/domain/workspace_repository.dart';
 import 'auth_dependencies.dart';
+import 'reminder_notifications.dart';
 
 enum SessionMode { guest, preview, account }
 
@@ -32,10 +33,16 @@ class AppDataSession {
 
   bool get isAccount => mode == SessionMode.account && _workspace != null;
 
-  void chooseMode(SessionMode next) => mode = next;
+  void chooseMode(SessionMode next) {
+    mode = next;
+    if (next != SessionMode.account) {
+      unawaited(reminderNotifications.sync(const [], assistedAccount: false));
+    }
+  }
 
   Future<void> start(String role) async {
     final generation = ++_generation;
+    unawaited(reminderNotifications.sync(const [], assistedAccount: false));
     _detach();
     _workspace = null;
     _pending = false;
@@ -45,10 +52,12 @@ class AppDataSession {
     _clear();
     if (mode == SessionMode.preview) {
       _loadPreview();
+      unawaited(reminderNotifications.sync(const [], assistedAccount: false));
       phase.value = SessionPhase.ready;
       return;
     }
     if (mode == SessionMode.guest) {
+      unawaited(reminderNotifications.sync(const [], assistedAccount: false));
       phase.value = SessionPhase.ready;
       return;
     }
@@ -67,6 +76,12 @@ class AppDataSession {
       _workspace = workspace;
       _restore(workspace.data);
       _attach();
+      unawaited(
+        reminderNotifications.sync(
+          lembretes.value,
+          assistedAccount: role == 'assistida',
+        ),
+      );
       phase.value = SessionPhase.ready;
     } catch (_) {
       if (generation != _generation) return;
@@ -87,6 +102,44 @@ class AppDataSession {
     }
     await _repository.redeemInvite(code);
     await start('cuidador');
+  }
+
+  Future<List<String>> caregiverIds() async {
+    if (!isAccount || mode != SessionMode.account)
+      throw StateError('Entre com sua conta.');
+    return _repository.caregiverIds();
+  }
+
+  Future<void> unlinkCaregiver(String caregiverId) async {
+    if (mode != SessionMode.account) throw StateError('Entre com sua conta.');
+    await _repository.unlinkCaregiver(caregiverId);
+    if (Supabase.instance.client.auth.currentUser?.id == caregiverId) {
+      await start('cuidador');
+    }
+  }
+
+  Future<void> unlinkOwnCaregiver() async {
+    final uid = Supabase.instance.client.auth.currentUser?.id;
+    if (uid == null) throw StateError('Entre com sua conta.');
+    await unlinkCaregiver(uid);
+  }
+
+  void refreshDailyCompletions() {
+    final today = DateTime.now();
+    final expired = lembretes.value.where((item) {
+      final at = item.concluidoEm?.toLocal();
+      return item.concluido &&
+          (at == null ||
+              at.year != today.year ||
+              at.month != today.month ||
+              at.day != today.day);
+    }).toList();
+    if (expired.isEmpty) return;
+    for (final item in expired) {
+      item.concluido = false;
+      item.concluidoEm = null;
+    }
+    lembretes.value = List<Lembrete>.from(lembretes.value);
   }
 
   void retrySave() {
@@ -128,6 +181,14 @@ class AppDataSession {
   void _changed() {
     if (!isAccount) return;
     if (needsReload) return;
+    unawaited(
+      reminderNotifications.sync(
+        lembretes.value,
+        assistedAccount:
+            Supabase.instance.client.auth.currentUser?.id ==
+            _workspace?.assistedId,
+      ),
+    );
     _pending = true;
     unawaited(_saveLoop());
   }
@@ -253,6 +314,27 @@ class AppDataSession {
           .map((row) => Map<String, dynamic>.from(row))
           .toList();
 
+  Lembrete _readReminder(Map<String, dynamic> row) {
+    final completedAt = row['completed_at'] == null
+        ? null
+        : DateTime.tryParse(row['completed_at'] as String)?.toLocal();
+    final today = DateTime.now();
+    final doneToday =
+        (row['completed'] as bool? ?? false) &&
+        completedAt != null &&
+        completedAt.year == today.year &&
+        completedAt.month == today.month &&
+        completedAt.day == today.day;
+    return Lembrete(
+      titulo: row['title'] as String,
+      descricao: row['description'] as String,
+      horario: row['time'] as String,
+      iconCodePoint: (row['icon'] as num).toInt(),
+      concluido: doneToday,
+      concluidoEm: doneToday ? completedAt : null,
+    );
+  }
+
   void _restore(Map<String, dynamic> data) {
     final preferences = Map<String, dynamic>.from(
       data['preferences'] as Map? ?? {},
@@ -261,17 +343,7 @@ class AppDataSession {
     escalaFonte.value = (preferences['font_scale'] as num? ?? 1.0).toDouble();
     tipoFonte.value = preferences['font_family'] as String? ?? 'Padrão';
     lembretes.value = [
-      for (final row in _rows(data, 'reminders'))
-        Lembrete(
-          titulo: row['title'] as String,
-          descricao: row['description'] as String,
-          horario: row['time'] as String,
-          iconCodePoint: (row['icon'] as num).toInt(),
-          concluido: row['completed'] as bool? ?? false,
-          concluidoEm: row['completed_at'] == null
-              ? null
-              : DateTime.parse(row['completed_at'] as String),
-        ),
+      for (final row in _rows(data, 'reminders')) _readReminder(row),
     ];
     compromissos.value = [
       for (final row in _rows(data, 'appointments'))

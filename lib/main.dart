@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import 'app/auth_dependencies.dart';
+import 'app/reminder_notifications.dart';
 import 'core/app_state.dart';
 import 'core/theme.dart';
 import 'features/auth/presentation.dart';
@@ -9,6 +10,11 @@ import 'features/auth/presentation.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeAuth();
+  try {
+    await reminderNotifications.initialize();
+  } catch (_) {
+    // A notification plugin failure must not prevent access to the app.
+  }
   SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
   runApp(const MyApp());
 }

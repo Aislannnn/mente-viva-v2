@@ -141,6 +141,62 @@ class _ConfigSheet extends StatelessWidget {
                   ),
                   const SizedBox(height: 10),
                 ],
+                if (appDataSession.isAccount &&
+                    perfilAtivo.value == 'assistida') ...[
+                  _ConfigItem(
+                    escuro: escuro,
+                    icon: Icons.people_outline,
+                    label: 'Gerenciar cuidadores',
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () => _manageCaregivers(context),
+                  ),
+                  const SizedBox(height: 10),
+                ],
+                if (appDataSession.isAccount &&
+                    perfilAtivo.value == 'cuidador') ...[
+                  _ConfigItem(
+                    escuro: escuro,
+                    icon: Icons.person_remove_outlined,
+                    label: 'Desvincular desta pessoa',
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () => _leaveCareLink(context),
+                  ),
+                  const SizedBox(height: 10),
+                ],
+                if (reminderNotifications.supported &&
+                    appDataSession.isAccount &&
+                    perfilAtivo.value == 'assistida') ...[
+                  ValueListenableBuilder<bool>(
+                    valueListenable: reminderNotifications.enabled,
+                    builder: (context, enabled, _) => _ConfigItem(
+                      escuro: escuro,
+                      icon: Icons.notifications_active_outlined,
+                      label: 'Alertas diários neste aparelho',
+                      trailing: Switch(
+                        value: enabled,
+                        onChanged: (value) async {
+                          if (!value) {
+                            await reminderNotifications.disable();
+                            return;
+                          }
+                          final granted = await reminderNotifications.enable(
+                            lembretes.value,
+                          );
+                          if (!granted && context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  'Permita notificações nas configurações do aparelho.',
+                                ),
+                              ),
+                            );
+                          }
+                        },
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                ],
                 _ConfigItem(
                   escuro: escuro,
                   icon: Icons.dark_mode_outlined,
@@ -357,6 +413,127 @@ class _ConfigSheet extends StatelessWidget {
         );
       },
     );
+  }
+
+  Future<void> _manageCaregivers(BuildContext context) async {
+    try {
+      final ids = await appDataSession.caregiverIds();
+      if (!context.mounted) return;
+      await showDialog<void>(
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          title: const Text('Cuidadores vinculados'),
+          content: ids.isEmpty
+              ? const Text('Nenhum cuidador vinculado ainda.')
+              : SizedBox(
+                  width: 340,
+                  child: ListView.builder(
+                    shrinkWrap: true,
+                    itemCount: ids.length,
+                    itemBuilder: (_, index) => ListTile(
+                      title: Text('Cuidador ${index + 1}'),
+                      subtitle: Text(
+                        'Conta …${ids[index].substring(ids[index].length - 6)}',
+                      ),
+                      trailing: IconButton(
+                        tooltip: 'Desvincular cuidador',
+                        icon: const Icon(Icons.person_remove_outlined),
+                        onPressed: () async {
+                          final confirmed = await showDialog<bool>(
+                            context: dialogContext,
+                            builder: (confirmContext) => AlertDialog(
+                              title: const Text('Desvincular cuidador?'),
+                              content: const Text(
+                                'Essa conta perderá acesso aos seus dados. Você poderá gerar outro convite depois.',
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () =>
+                                      Navigator.pop(confirmContext, false),
+                                  child: const Text('Cancelar'),
+                                ),
+                                FilledButton(
+                                  onPressed: () =>
+                                      Navigator.pop(confirmContext, true),
+                                  child: const Text('Desvincular'),
+                                ),
+                              ],
+                            ),
+                          );
+                          if (confirmed != true) return;
+                          try {
+                            await appDataSession.unlinkCaregiver(ids[index]);
+                            if (!dialogContext.mounted) return;
+                            Navigator.pop(dialogContext);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Cuidador desvinculado.'),
+                              ),
+                            );
+                          } catch (_) {
+                            if (dialogContext.mounted) {
+                              ScaffoldMessenger.of(dialogContext).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    'Não foi possível desvincular.',
+                                  ),
+                                ),
+                              );
+                            }
+                          }
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: const Text('Fechar'),
+            ),
+          ],
+        ),
+      );
+    } catch (_) {
+      if (context.mounted)
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Não foi possível carregar os cuidadores.'),
+          ),
+        );
+    }
+  }
+
+  Future<void> _leaveCareLink(BuildContext context) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Desvincular conta?'),
+        content: const Text(
+          'Você perderá acesso aos dados da Pessoa Assistida até receber outro convite.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('Cancelar'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            child: const Text('Desvincular'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+    try {
+      await appDataSession.unlinkOwnCaregiver();
+      if (context.mounted) Navigator.pop(context);
+    } catch (_) {
+      if (context.mounted)
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Não foi possível desfazer o vínculo.')),
+        );
+    }
   }
 }
 
