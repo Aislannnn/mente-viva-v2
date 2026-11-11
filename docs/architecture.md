@@ -19,6 +19,8 @@ Uma conclusão só é registrada após as três rodadas ou palavras. Sair antes 
 
 `core/app_state.dart` ainda usa `ValueNotifier` como estado global da interface. As listas começam vazias. Em uma conta autenticada, `app/data_session.dart` carrega e salva o estado por meio de `WorkspaceRepository`, implementado pelo adaptador Supabase na camada de dados. O banco mantém um documento JSON por Pessoa Assistida com versão para evitar sobrescrever alterações feitas em outro aparelho. Se houver conflito ou falha de rede, o app avisa que a mudança ainda não foi salva. No acesso sem conta e na prévia simulada, nenhuma operação de banco é feita. Essa área ainda precisa migrar suas ações de tela para casos de uso próprios. Portanto, **a migração para Clean Architecture ainda não está completa em rotina, álbum e configurações**.
 
+Modo escuro, escala de fonte e tipo de fonte pertencem à conta que fez a alteração. `UserPreferencesRepository` é o contrato no domínio, `SupabaseUserPreferencesRepository` salva em `user_preferences` sob RLS, e `AppDataSession` mantém uma fila de salvamento separada para essas opções. Alterações de aparência não atualizam o documento compartilhado nem são aplicadas quando chegam eventos de rotina de outro perfil.
+
 Para contas autenticadas, a sessão acompanha atualizações de `app_records` pelo Supabase Realtime e busca novamente o documento sob RLS. Uma conferência periódica e outra ao retomar o app cobrem quedas de conexão e períodos em segundo plano. Enquanto uma edição local está pendente, a sessão não substitui a tela com dados remotos; o salvamento resolve versões diferentes antes de aplicar alterações.
 
 ## Palavras do dia

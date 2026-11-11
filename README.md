@@ -44,6 +44,8 @@ Com o Supabase configurado, e-mail e senha autenticam contas e exigem confirmaç
 
 Em contas vinculadas, atualizações feitas em outro aparelho chegam pelo Supabase Realtime; o app também confere os dados ao voltar para a tela e periodicamente enquanto está aberto. Jogos aparecem apenas para a Pessoa Assistida.
 
+Modo escuro, tamanho dos elementos e tipo de fonte são salvos por conta em `user_preferences`. Uma alteração do cuidador não muda a aparência da Pessoa Assistida, nem o contrário.
+
 Ambos os participantes podem desfazer o vínculo nas configurações. No Android e iOS, a Pessoa Assistida pode ativar alertas locais diários para seus lembretes; a preferência é deste aparelho e o app pede permissão ao ativar. O acesso sem conta e a prévia não programam alertas. O navegador não recebe esses alertas quando está fechado.
 
 ## Aplicativos Android e iOS

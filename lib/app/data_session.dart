@@ -7,6 +7,8 @@ import '../core/app_state.dart';
 import '../features/games/data/game_stats_store.dart';
 import '../features/games/domain/game_stat.dart';
 import '../features/home/data/supabase_workspace_repository.dart';
+import '../features/home/data/supabase_user_preferences_repository.dart';
+import '../features/home/domain/user_preferences.dart';
 import '../features/home/domain/workspace_merge.dart';
 import '../features/home/domain/workspace_repository.dart';
 import 'auth_dependencies.dart';
@@ -22,6 +24,7 @@ class AppDataSession {
   SessionMode mode = SessionMode.guest;
   final ValueNotifier<SessionPhase> phase = ValueNotifier(SessionPhase.loading);
   final ValueNotifier<String?> message = ValueNotifier(null);
+  final ValueNotifier<String?> preferencesMessage = ValueNotifier(null);
   WorkspaceData? _workspace;
   Map<String, dynamic>? _baselineData;
   RealtimeChannel? _liveChannel;
@@ -30,11 +33,15 @@ class AppDataSession {
   bool _refreshing = false;
   bool _saving = false;
   bool _pending = false;
+  bool _savingPreferences = false;
+  bool _pendingPreferences = false;
   bool needsReload = false;
   int _generation = 0;
 
   WorkspaceRepository get _repository =>
       SupabaseWorkspaceRepository(Supabase.instance.client);
+  UserPreferencesRepository get _preferencesRepository =>
+      SupabaseUserPreferencesRepository(Supabase.instance.client);
 
   bool get isAccount => mode == SessionMode.account && _workspace != null;
 
@@ -54,8 +61,11 @@ class AppDataSession {
     _workspace = null;
     _baselineData = null;
     _pending = false;
+    _savingPreferences = false;
+    _pendingPreferences = false;
     needsReload = false;
     message.value = null;
+    preferencesMessage.value = null;
     phase.value = SessionPhase.loading;
     _clear();
     if (mode == SessionMode.preview) {
@@ -81,8 +91,11 @@ class AppDataSession {
         phase.value = SessionPhase.needsLink;
         return;
       }
+      final preferences = await _preferencesRepository.load();
+      if (generation != _generation) return;
       _workspace = workspace;
       _restore(workspace.data);
+      _applyPreferences(preferences);
       _baselineData = _capture();
       _attach();
       unawaited(
@@ -270,23 +283,36 @@ class AppDataSession {
     unawaited(_saveLoop());
   }
 
+  void retryPreferencesSave() {
+    if (!isAccount || _savingPreferences) return;
+    preferencesMessage.value = null;
+    _pendingPreferences = true;
+    unawaited(_savePreferencesLoop());
+  }
+
   void _attach() {
     if (_listening) return;
-    for (final notifier in _notifiers) {
+    for (final notifier in _sharedNotifiers) {
       notifier.addListener(_changed);
+    }
+    for (final notifier in _preferenceNotifiers) {
+      notifier.addListener(_preferencesChanged);
     }
     _listening = true;
   }
 
   void _detach() {
     if (!_listening) return;
-    for (final notifier in _notifiers) {
+    for (final notifier in _sharedNotifiers) {
       notifier.removeListener(_changed);
+    }
+    for (final notifier in _preferenceNotifiers) {
+      notifier.removeListener(_preferencesChanged);
     }
     _listening = false;
   }
 
-  List<Listenable> get _notifiers => [
+  List<Listenable> get _sharedNotifiers => [
     lembretes,
     compromissos,
     pessoas,
@@ -294,10 +320,59 @@ class AppDataSession {
     esquecimentos,
     visitas,
     gameStats,
+  ];
+
+  List<Listenable> get _preferenceNotifiers => [
     modoEscuro,
     escalaFonte,
     tipoFonte,
   ];
+
+  void _preferencesChanged() {
+    if (!isAccount) return;
+    _pendingPreferences = true;
+    unawaited(_savePreferencesLoop());
+  }
+
+  UserPreferences _capturePreferences() => UserPreferences(
+    dark: modoEscuro.value,
+    fontScale: escalaFonte.value,
+    fontFamily: tipoFonte.value,
+  );
+
+  void _applyPreferences(UserPreferences preferences) {
+    modoEscuro.value = preferences.dark;
+    escalaFonte.value = preferences.fontScale;
+    tipoFonte.value = preferences.fontFamily;
+  }
+
+  Future<void> _savePreferencesLoop() async {
+    if (_savingPreferences) return;
+    _savingPreferences = true;
+    final generation = _generation;
+    try {
+      while (_pendingPreferences && generation == _generation) {
+        _pendingPreferences = false;
+        try {
+          await _preferencesRepository.save(_capturePreferences());
+          if (generation != _generation) return;
+          preferencesMessage.value = null;
+        } catch (_) {
+          if (generation != _generation) return;
+          preferencesMessage.value =
+              'Não foi possível salvar as configurações desta conta. Toque em Tentar novamente.';
+          return;
+        }
+      }
+    } finally {
+      if (generation == _generation) {
+        _savingPreferences = false;
+        if (_pendingPreferences && isAccount) {
+          unawaited(_savePreferencesLoop());
+        }
+      }
+    }
+  }
 
   void _changed() {
     if (!isAccount) return;
@@ -410,11 +485,6 @@ class AppDataSession {
   }
 
   Map<String, dynamic> _capture() => {
-    'preferences': {
-      'dark': modoEscuro.value,
-      'font_scale': escalaFonte.value,
-      'font_family': tipoFonte.value,
-    },
     'reminders': [
       for (final item in lembretes.value)
         {
@@ -500,12 +570,6 @@ class AppDataSession {
   }
 
   void _restore(Map<String, dynamic> data) {
-    final preferences = Map<String, dynamic>.from(
-      data['preferences'] as Map? ?? {},
-    );
-    modoEscuro.value = preferences['dark'] as bool? ?? false;
-    escalaFonte.value = (preferences['font_scale'] as num? ?? 1.0).toDouble();
-    tipoFonte.value = preferences['font_family'] as String? ?? 'Padrão';
     lembretes.value = [
       for (final row in _rows(data, 'reminders')) _readReminder(row),
     ];

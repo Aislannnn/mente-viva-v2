@@ -220,6 +220,22 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
                                 ],
                               ),
                       ),
+                    if (appDataSession.isAccount)
+                      ValueListenableBuilder<String?>(
+                        valueListenable: appDataSession.preferencesMessage,
+                        builder: (context, message, _) => message == null
+                            ? const SizedBox.shrink()
+                            : MaterialBanner(
+                                content: Text(message),
+                                actions: [
+                                  TextButton(
+                                    onPressed:
+                                        appDataSession.retryPreferencesSave,
+                                    child: const Text('Tentar novamente'),
+                                  ),
+                                ],
+                              ),
+                      ),
                     Expanded(child: _pages[_currentIndex]),
                   ],
                 ),
