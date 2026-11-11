@@ -24,7 +24,10 @@ class AppDataSession {
   final ValueNotifier<String?> message = ValueNotifier(null);
   WorkspaceData? _workspace;
   Map<String, dynamic>? _baselineData;
+  RealtimeChannel? _liveChannel;
+  Timer? _refreshTimer;
   bool _listening = false;
+  bool _refreshing = false;
   bool _saving = false;
   bool _pending = false;
   bool needsReload = false;
@@ -38,6 +41,7 @@ class AppDataSession {
   void chooseMode(SessionMode next) {
     mode = next;
     if (next != SessionMode.account) {
+      _stopLiveSync();
       unawaited(reminderNotifications.sync(const [], assistedAccount: false));
     }
   }
@@ -45,6 +49,7 @@ class AppDataSession {
   Future<void> start(String role) async {
     final generation = ++_generation;
     unawaited(reminderNotifications.sync(const [], assistedAccount: false));
+    _stopLiveSync();
     _detach();
     _workspace = null;
     _baselineData = null;
@@ -87,6 +92,7 @@ class AppDataSession {
         ),
       );
       phase.value = SessionPhase.ready;
+      _startLiveSync(workspace);
     } catch (_) {
       if (generation != _generation) return;
       message.value = 'Não foi possível carregar seus dados. Tente novamente.';
@@ -144,6 +150,117 @@ class AppDataSession {
       item.concluidoEm = null;
     }
     lembretes.value = List<Lembrete>.from(lembretes.value);
+  }
+
+  void _startLiveSync(WorkspaceData workspace) {
+    _refreshTimer = Timer.periodic(
+      const Duration(seconds: 60),
+      (_) => unawaited(refreshFromServer()),
+    );
+    try {
+      final client = Supabase.instance.client;
+      final channel = client.channel(
+        'workspace-${workspace.assistedId}-$_generation',
+      );
+      _liveChannel = channel;
+      channel
+          .onPostgresChanges(
+            event: PostgresChangeEvent.update,
+            schema: 'public',
+            table: 'app_records',
+            filter: PostgresChangeFilter(
+              type: PostgresChangeFilterType.eq,
+              column: 'assisted_id',
+              value: workspace.assistedId,
+            ),
+            select: const ['assisted_id', 'version'],
+            callback: (payload) {
+              final version = (payload.newRecord['version'] as num?)?.toInt();
+              if (version != null && version > (_workspace?.version ?? -1)) {
+                unawaited(refreshFromServer());
+              }
+            },
+          )
+          .subscribe((status, _) {
+            if (status == RealtimeSubscribeStatus.subscribed) {
+              unawaited(refreshFromServer());
+            }
+          });
+    } catch (_) {
+      final channel = _liveChannel;
+      _liveChannel = null;
+      if (channel != null) unawaited(_removeChannel(channel));
+    }
+  }
+
+  void _stopLiveSync() {
+    _refreshTimer?.cancel();
+    _refreshTimer = null;
+    final channel = _liveChannel;
+    _liveChannel = null;
+    if (channel != null) unawaited(_removeChannel(channel));
+  }
+
+  Future<void> _removeChannel(RealtimeChannel channel) async {
+    try {
+      await Supabase.instance.client.removeChannel(channel);
+    } catch (_) {
+      // An interrupted connection must not block account switching.
+    }
+  }
+
+  Future<void> refreshFromServer() async {
+    if (!isAccount ||
+        phase.value != SessionPhase.ready ||
+        _refreshing ||
+        _saving ||
+        _pending ||
+        needsReload ||
+        message.value != null) {
+      return;
+    }
+    final generation = _generation;
+    final current = _workspace!;
+    _refreshing = true;
+    try {
+      final latest = await _repository.load(perfilAtivo.value);
+      if (generation != _generation ||
+          !isAccount ||
+          _saving ||
+          _pending ||
+          needsReload ||
+          message.value != null) {
+        return;
+      }
+      if (latest == null || latest.assistedId != current.assistedId) {
+        _stopLiveSync();
+        _detach();
+        _workspace = null;
+        _baselineData = null;
+        _clear();
+        unawaited(reminderNotifications.sync(const [], assistedAccount: false));
+        phase.value = SessionPhase.needsLink;
+        return;
+      }
+      if (latest.version <= (_workspace?.version ?? -1)) return;
+      _detach();
+      _workspace = latest;
+      _restore(latest.data);
+      _baselineData = _capture();
+      _attach();
+      unawaited(
+        reminderNotifications.sync(
+          lembretes.value,
+          assistedAccount:
+              Supabase.instance.client.auth.currentUser?.id ==
+              latest.assistedId,
+        ),
+      );
+    } catch (_) {
+      // Realtime may be temporarily unavailable. The next poll or resume retries.
+    } finally {
+      _refreshing = false;
+    }
   }
 
   void retrySave() {

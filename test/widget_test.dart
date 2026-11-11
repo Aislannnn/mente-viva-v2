@@ -137,9 +137,14 @@ void main() {
     expect(find.text('Acesso de Cuidador'), findsOneWidget);
     await tester.tap(find.text('Entrar sem conta (demonstração)'));
     await tester.pumpAndSettle();
+    expect(find.text('Jogos'), findsNothing);
     await tester.tap(find.text('Lembretes').last);
     await tester.pumpAndSettle();
 
+    expect(find.byType(FloatingActionButton), findsOneWidget);
+    await tester.tap(find.text('Álbum').last);
+    await tester.pumpAndSettle();
+    expect(find.text('Álbum de memórias'), findsOneWidget);
     expect(find.byType(FloatingActionButton), findsOneWidget);
   });
 

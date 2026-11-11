@@ -18,8 +18,10 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed)
+    if (state == AppLifecycleState.resumed) {
       appDataSession.refreshDailyCompletions();
+      unawaited(appDataSession.refreshFromServer());
+    }
   }
 
   @override
@@ -33,7 +35,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
   }
 
   List<Widget> get _pages => perfilAtivo.value == 'cuidador'
-      ? const [_HomePageCuidador(), JogosPage(), _LembretesPage(), _AlbumPage()]
+      ? const [_HomePageCuidador(), _LembretesPage(), _AlbumPage()]
       : const [_HomePage(), JogosPage(), _LembretesPage(), _AlbumPage()];
 
   void _abrirConfiguracoes() {
@@ -265,22 +267,23 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
                           large: !eCuidador,
                           onTap: _selectTab,
                         ),
-                        _NavItem(
-                          icon: Icons.sports_esports_outlined,
-                          activeIcon: Icons.sports_esports,
-                          label: 'Jogos',
-                          index: 1,
-                          currentIndex: _currentIndex,
-                          selectedColor: selectedColor,
-                          iconColor: iconColor,
-                          large: !eCuidador,
-                          onTap: _selectTab,
-                        ),
+                        if (!eCuidador)
+                          _NavItem(
+                            icon: Icons.sports_esports_outlined,
+                            activeIcon: Icons.sports_esports,
+                            label: 'Jogos',
+                            index: 1,
+                            currentIndex: _currentIndex,
+                            selectedColor: selectedColor,
+                            iconColor: iconColor,
+                            large: true,
+                            onTap: _selectTab,
+                          ),
                         _NavItem(
                           icon: Icons.notifications_outlined,
                           activeIcon: Icons.notifications,
                           label: 'Lembretes',
-                          index: 2,
+                          index: eCuidador ? 1 : 2,
                           currentIndex: _currentIndex,
                           selectedColor: selectedColor,
                           iconColor: iconColor,
@@ -291,7 +294,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
                           icon: Icons.photo_album_outlined,
                           activeIcon: Icons.photo_album,
                           label: 'Álbum',
-                          index: 3,
+                          index: eCuidador ? 2 : 3,
                           currentIndex: _currentIndex,
                           selectedColor: selectedColor,
                           iconColor: iconColor,
@@ -303,7 +306,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
                             icon: Icons.settings_outlined,
                             activeIcon: Icons.settings,
                             label: 'Config.',
-                            index: 4,
+                            index: 3,
                             currentIndex: _currentIndex,
                             selectedColor: selectedColor,
                             iconColor: iconColor,
@@ -323,7 +326,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
 
   Widget? _buildFab() {
     final eCuidador = perfilAtivo.value == 'cuidador';
-    if (_currentIndex == 2 && eCuidador) {
+    if (_currentIndex == 1 && eCuidador) {
       return FloatingActionButton(
         onPressed: () => showModalBottomSheet(
           context: context,
@@ -335,7 +338,7 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
         child: const Icon(Icons.add, color: Colors.white),
       );
     }
-    if (_currentIndex == 3 && eCuidador) {
+    if (_currentIndex == 2 && eCuidador) {
       return FloatingActionButton(
         onPressed: () => showModalBottomSheet(
           context: context,

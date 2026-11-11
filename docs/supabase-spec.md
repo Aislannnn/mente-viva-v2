@@ -15,16 +15,17 @@ O escopo enxuto é manter um único projeto e **não criar recursos** nos servi�
 | **Authentication → URL Configuration** | URL do Pages e retornos de autenticação | Ajustar redirects web ou futuros builds nativos |
 | **Database → Table Editor / Policies** | Cinco tabelas de aplicação e suas regras de acesso | Inspeção administrativa, sem editar dados pessoais manualmente |
 | **SQL Editor / migrations** | Evolução controlada do esquema | Aplicar e revisar mudanças do banco |
+| **Realtime** | Eventos de alteração de `app_records` para atualizar os dois perfis | Diagnosticar sincronização entre aparelhos |
 | **Project Settings → API Keys** | URL e chave publicável do cliente | Configuração de um novo ambiente |
 | **Advisors / Logs** | Auditoria e diagnóstico | Revisões periódicas ou falhas |
-| **Storage, Edge Functions, Realtime, Vectors, Cron, Queues, OAuth Server, SAML, Phone, Web3** | Nenhum recurso necessário nesta versão | Não exigem configuração agora; permanecem visíveis no Dashboard |
+| **Storage, Edge Functions, Vectors, Cron, Queues, OAuth Server, SAML, Phone, Web3** | Nenhum recurso necessário nesta versão | Não exigem configuração agora; permanecem visíveis no Dashboard |
 
 ## 2. Arquitetura de conexão
 
 - **Cliente:** Flutter Web publicado no GitHub Pages; o código também contém configuração de callback para Android/iOS.
 - **Servidor:** `https://hdgxxdaedzidkpfmsvra.supabase.co`, projeto Supabase ativo na região `us-east-1`.
 - **Credencial no app:** somente a *publishable key*. Nunca inserir `service_role` ou outra chave secreta no Flutter, GitHub Pages ou repositório.
-- **Serviços usados:** Supabase Auth, Postgres e Data API. O app consulta tabelas protegidas por RLS e chama quatro funções para vínculo e perfil.
+- **Serviços usados:** Supabase Auth, Postgres, Data API e Realtime. O app consulta tabelas protegidas por RLS e chama quatro funções para vínculo e perfil.
 - **Modos sem conta:** `guest` inicia vazio; `preview` carrega exemplos rotulados. Ambos ficam apenas na memória e não chamam o banco.
 - **Modo com conta:** carrega o registro da Pessoa Assistida e sincroniza alterações. O cuidador só carrega esse registro após aceitar um convite.
 
@@ -55,7 +56,9 @@ Todas essas tabelas têm RLS ligado. `care_invites` deliberadamente não tem pol
 
 ### Documento `app_records.data`
 
-Atualmente reúne `preferences`, `reminders`, `appointments`, `people`, `sleep`, `forgetfulness`, `visits` e `game_stats`. Isso evita muitas tabelas para a prova de conceito, mas implica salvar um documento inteiro por alteração. `version` impede sobrescrever silenciosamente uma edição feita em outro aparelho; em conflito o app pede para recarregar. Preferências de aparência hoje também ficam nesse documento compartilhado e merecem separação por usuário se cada cuidador precisar das próprias preferências.
+Atualmente reúne `preferences`, `reminders`, `appointments`, `people`, `sleep`, `forgetfulness`, `visits` e `game_stats`. Isso evita muitas tabelas para a prova de conceito, mas implica salvar um documento inteiro por alteração. `version` impede sobrescrever silenciosamente uma edição feita em outro aparelho. Se os dois aparelhos mudarem seções diferentes, o app combina as alterações e tenta salvar novamente; se mudarem a mesma seção, pede revisão e recarga. Preferências de aparência hoje também ficam nesse documento compartilhado e merecem separação por usuário se cada cuidador precisar das próprias preferências.
+
+`app_records` está na publicação `supabase_realtime`. O app assina eventos de atualização somente do registro vinculado e, ao recebê-los, busca a versão atual autorizada por RLS. Também confere alterações ao voltar para o app e a cada 60 segundos enquanto a conta está aberta. A sincronização não é usada nos modos sem conta.
 
 O **álbum atual registra pessoas, relação e descrição com ícones**. Ainda não há upload de fotografias nem bucket de Storage. Se fotos reais forem acrescentadas, o desenho deverá prever bucket privado, autorização por vínculo e regras de download antes de criar o recurso.
 
@@ -84,7 +87,7 @@ Os endpoints `create_care_invite`, `redeem_care_invite`, `unlink_caregiver` e `c
 | Conselheiro de segurança | Aponta as quatro funções `SECURITY DEFINER` acessíveis a autenticados (uso deliberado), `care_invites` sem política direta (deliberado) e proteção contra senhas vazadas desativada (avaliar ativação no painel). |
 | Privacidade | Exportação/exclusão de dados, retenção, consentimento, backups e tratamento de fotografias/possíveis dados de saúde ainda precisam de decisão antes de uso real com pessoas. |
 | Fotos e notificações | Não implementadas no Supabase. Os lembretes da conta são sincronizados no banco e geram alertas locais no Android/iOS da Pessoa Assistida quando ativados; não há push nem bucket de imagens. |
-| Histórico de migrações | O servidor registra também `20261111112414_unlink_caregiver`; os arquivos locais usam o mesmo prefixo. |
+| Histórico de migrações | O servidor registra também `20261111112414_unlink_caregiver` e `20261111140137_enable_workspace_realtime`; os arquivos locais usam os mesmos prefixos. |
 
 ## 7. Critério de suficiência para esta fase
 

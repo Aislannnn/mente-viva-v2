@@ -42,6 +42,8 @@ flutter build web --release --base-href /mente-viva-v2/
 
 Com o Supabase configurado, e-mail e senha autenticam contas e exigem confirmação do e-mail quando habilitada no projeto. A Pessoa Assistida pode gerar um convite de 24 horas e uso único; o cuidador digita o código para ver e editar os mesmos registros. A conta sincroniza lembretes, compromissos, pessoas, sono, esquecimentos, visitas e estatísticas dos jogos. O jogo de palavras recebe 3 palavras do banco a cada dia. No acesso sem conta, os dados ficam somente na memória; a prévia exibe exemplos identificados como simulação. A estrutura e as decisões estão documentadas em [docs/architecture.md](docs/architecture.md) e [docs/design.md](docs/design.md).
 
+Em contas vinculadas, atualizações feitas em outro aparelho chegam pelo Supabase Realtime; o app também confere os dados ao voltar para a tela e periodicamente enquanto está aberto. Jogos aparecem apenas para a Pessoa Assistida.
+
 Ambos os participantes podem desfazer o vínculo nas configurações. No Android e iOS, a Pessoa Assistida pode ativar alertas locais diários para seus lembretes; a preferência é deste aparelho e o app pede permissão ao ativar. O acesso sem conta e a prévia não programam alertas. O navegador não recebe esses alertas quando está fechado.
 
 ## Aplicativos Android e iOS
