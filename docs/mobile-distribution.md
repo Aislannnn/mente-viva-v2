@@ -16,7 +16,7 @@ flutter build apk --debug \
   --dart-define=SUPABASE_PUBLISHABLE_KEY=SUA_CHAVE_PUBLICA
 ```
 
-A chave publicável não é segredo. Não coloque uma chave `service_role`, um arquivo de assinatura nem uma senha no Git. Para iOS, rode `flutter build ios --release --no-codesign` em um Mac com Xcode e CocoaPods. O projeto exige iOS 15 ou superior.
+A chave publicável não é segredo. Não coloque uma chave `service_role`, um arquivo de assinatura nem uma senha no Git. Para iOS, rode `flutter build ios --release --no-codesign` em um Mac com Xcode. Os plugins atuais usam Swift Package Manager. O projeto exige iOS 15 ou superior.
 
 ## Alertas de lembretes
 
