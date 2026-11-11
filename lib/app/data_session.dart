@@ -7,6 +7,7 @@ import '../core/app_state.dart';
 import '../features/games/data/game_stats_store.dart';
 import '../features/games/domain/game_stat.dart';
 import '../features/home/data/supabase_workspace_repository.dart';
+import '../features/home/domain/workspace_merge.dart';
 import '../features/home/domain/workspace_repository.dart';
 import 'auth_dependencies.dart';
 import 'reminder_notifications.dart';
@@ -22,6 +23,7 @@ class AppDataSession {
   final ValueNotifier<SessionPhase> phase = ValueNotifier(SessionPhase.loading);
   final ValueNotifier<String?> message = ValueNotifier(null);
   WorkspaceData? _workspace;
+  Map<String, dynamic>? _baselineData;
   bool _listening = false;
   bool _saving = false;
   bool _pending = false;
@@ -45,6 +47,7 @@ class AppDataSession {
     unawaited(reminderNotifications.sync(const [], assistedAccount: false));
     _detach();
     _workspace = null;
+    _baselineData = null;
     _pending = false;
     needsReload = false;
     message.value = null;
@@ -75,6 +78,7 @@ class AppDataSession {
       }
       _workspace = workspace;
       _restore(workspace.data);
+      _baselineData = _capture();
       _attach();
       unawaited(
         reminderNotifications.sync(
@@ -197,6 +201,7 @@ class AppDataSession {
     if (_saving) return;
     _saving = true;
     final generation = _generation;
+    var conflictRetries = 0;
     try {
       while (_pending && generation == _generation) {
         _pending = false;
@@ -211,11 +216,53 @@ class AppDataSession {
             version: version,
             data: data,
           );
+          _baselineData = data;
+          conflictRetries = 0;
           message.value = null;
         } on WorkspaceConflict {
+          if (++conflictRetries <= 3) {
+            WorkspaceData? latest;
+            try {
+              latest = await _repository.load(perfilAtivo.value);
+            } catch (_) {
+              message.value =
+                  'Não foi possível conferir a versão mais recente. Toque em Tentar novamente.';
+              _pending = false;
+              return;
+            }
+            if (generation != _generation) return;
+            final baseline = _baselineData;
+            if (latest != null &&
+                latest.assistedId == current.assistedId &&
+                baseline != null) {
+              final merged = mergeWorkspaceChanges(
+                baseRaw: current.data,
+                baseLocal: baseline,
+                local: _capture(),
+                remote: latest.data,
+              );
+              if (merged != null) {
+                _workspace = latest;
+                _detach();
+                _restore(merged);
+                _attach();
+                unawaited(
+                  reminderNotifications.sync(
+                    lembretes.value,
+                    assistedAccount:
+                        Supabase.instance.client.auth.currentUser?.id ==
+                        latest.assistedId,
+                  ),
+                );
+                _pending = true;
+                message.value = null;
+                continue;
+              }
+            }
+          }
           needsReload = true;
           message.value =
-              'Os dados mudaram em outro aparelho. Reabra o app antes de editar novamente.';
+              'Os mesmos dados mudaram em outro aparelho. Recarregue antes de editar novamente.';
           _pending = false;
           return;
         } catch (_) {

@@ -61,10 +61,9 @@ class SupabaseWorkspaceRepository implements WorkspaceRepository {
         })
         .eq('assisted_id', current.assistedId)
         .eq('version', current.version)
-        .select('version')
-        .maybeSingle();
-    if (updated == null) throw const WorkspaceConflict();
-    return (updated['version'] as num).toInt();
+        .select('version');
+    if (updated.isEmpty) throw const WorkspaceConflict();
+    return (updated.single['version'] as num).toInt();
   }
 
   @override
