@@ -1,19 +1,20 @@
 # Supabase do Mente Viva v2 — especificação e escopo
 
-Estado conferido em 11/11/2026 no projeto `mente-viva-v2` (`hdgxxdaedzidkpfmsvra`). Esta página descreve o que **existe**, o que **falta** e o que **não faz parte** da versão atual. O resumo do Projeto Integrador fornecido pela equipe fundamenta as funções de rotina, memória, jogos e acompanhamento; o banco não pretende registrar diagnóstico ou substituir cuidado profissional.
+Estado conferido em 12/11/2026 no projeto `mente-viva-v2` (`hdgxxdaedzidkpfmsvra`). Esta página descreve o que **existe**, o que **falta** e o que **não faz parte** da versão atual. O resumo do Projeto Integrador fornecido pela equipe fundamenta as funções de rotina, memória, jogos e acompanhamento; o banco não pretende registrar diagnóstico ou substituir cuidado profissional.
 
 ## 1. O que pode ser removido do painel
 
 As entradas laterais **Authentication, Database, Storage, Edge Functions, Realtime, Observability** etc. são seções do Dashboard do Supabase, comuns ao projeto hospedado. Elas não são páginas criadas no Mente Viva nem objetos do banco. Não há operação de exclusão individual dessas seções no painel. Excluir o projeto inteiro apagaria Auth, banco, configurações e dados; isso **não** atende ao objetivo de simplificar a interface.
 
-O escopo enxuto é manter um único projeto e **não criar recursos** nos serviços sem uso. A auditoria encontrou **zero buckets de Storage** e **zero Edge Functions**. Nenhuma tabela existente foi classificada como descartável: as seis tabelas de aplicação têm uma função no fluxo atual. Nenhuma exclusão foi executada.
+O escopo enxuto é manter um único projeto e **não criar recursos** nos serviços sem uso. A auditoria encontrou **zero buckets de Storage** e **zero Edge Functions**. Nenhuma tabela existente foi classificada como descartável: as sete tabelas de aplicação têm uma função no fluxo atual. Nenhuma exclusão foi executada.
 
 | Área do Dashboard | Uso no Mente Viva | Quando abrir |
 | --- | --- | --- |
 | **Authentication → Users** | Contas, confirmação e provedor de cada usuário | Verificar cadastros e problemas de login |
+| **Authentication → Emails** | Modelo de confirmação ainda padrão no plano Free | Configurar SMTP próprio antes de ativar o modelo em português |
 | **Authentication → Sign In / Providers** | E-mail ativo; Google e Apple aguardam credenciais | Configurar login social |
 | **Authentication → URL Configuration** | URL do Pages e retornos de autenticação | Ajustar redirects web ou futuros builds nativos |
-| **Database → Table Editor / Policies** | Seis tabelas de aplicação e suas regras de acesso | Inspeção administrativa, sem editar dados pessoais manualmente |
+| **Database → Table Editor / Policies** | Sete tabelas de aplicação e suas regras de acesso | Inspeção administrativa, sem editar dados pessoais manualmente |
 | **SQL Editor / migrations** | Evolução controlada do esquema | Aplicar e revisar mudanças do banco |
 | **Realtime** | Eventos de alteração de `app_records` para atualizar os dois perfis | Diagnosticar sincronização entre aparelhos |
 | **Project Settings → API Keys** | URL e chave publicável do cliente | Configuração de um novo ambiente |
@@ -25,9 +26,9 @@ O escopo enxuto é manter um único projeto e **não criar recursos** nos servi�
 - **Cliente:** Flutter Web publicado no GitHub Pages; o código também contém configuração de callback para Android/iOS.
 - **Servidor:** `https://hdgxxdaedzidkpfmsvra.supabase.co`, projeto Supabase ativo na região `us-east-1`.
 - **Credencial no app:** somente a *publishable key*. Nunca inserir `service_role` ou outra chave secreta no Flutter, GitHub Pages ou repositório.
-- **Serviços usados:** Supabase Auth, Postgres, Data API e Realtime. O app consulta tabelas protegidas por RLS e chama quatro funções para vínculo e perfil.
+- **Serviços usados:** Supabase Auth, Postgres, Data API e Realtime. O app consulta tabelas protegidas por RLS e chama funções para vínculo e perfil.
 - **Modos sem conta:** `guest` inicia vazio; `preview` carrega exemplos rotulados. Ambos ficam apenas na memória e não chamam o banco.
-- **Modo com conta:** carrega o registro da Pessoa Assistida e sincroniza alterações. O cuidador só carrega esse registro após aceitar um convite.
+- **Modo com conta:** carrega o registro da Pessoa Assistida e sincroniza alterações. O cuidador só carrega esse registro depois que a Pessoa Assistida aceita seu convite.
 
 ## 3. Autenticação e perfis
 
@@ -42,18 +43,19 @@ O callback a cadastrar nos consoles do Google e da Apple é `https://hdgxxdaedzi
 
 ## 4. Dados existentes
 
-`auth.users` é gerenciada pelo Supabase Auth. As tabelas abaixo são do Mente Viva; os números históricos são apenas o retrato de 05/11/2026 e mudarão com o uso.
+`auth.users` é gerenciada pelo Supabase Auth. As tabelas abaixo são do Mente Viva; os números são apenas o retrato de 12/11/2026 e mudarão com o uso.
 
 | Tabela | Conteúdo e regra principal | Linhas observadas |
 | --- | --- | ---: |
-| `public.profiles` | Uma linha por conta; papel `assistida` ou `cuidador`. Cada conta lê apenas o próprio perfil. | 1 |
-| `public.care_links` | Liga um cuidador a uma Pessoa Assistida. Um cuidador pode ter um vínculo; uma Pessoa Assistida pode ter vários cuidadores. Apenas participantes leem o vínculo. | 0 |
-| `app_private.care_invites` | Guarda hash do código, validade e resgate. Fica em esquema privado, sem leitura direta pelo cliente. | 0 |
-| `public.app_records` | Um documento JSON por Pessoa Assistida; a própria pessoa e cuidadores vinculados podem ler/editar. Usa `version` para detectar edição concorrente. | 1 |
+| `public.profiles` | Uma linha por conta; papel `assistida` ou `cuidador`. Cada conta lê apenas o próprio perfil. | 4 |
+| `public.care_links` | Liga um cuidador a uma Pessoa Assistida. Um cuidador pode ter um vínculo; uma Pessoa Assistida pode ter vários cuidadores. Apenas participantes leem o vínculo. | 2 |
+| `app_private.care_invites` | Convites antigos gerados pela Pessoa Assistida, mantidos para versões anteriores do app. | 5 |
+| `app_private.caregiver_invites` | Convites novos gerados pelo cuidador, com hash, validade e resgate. Sem leitura direta pelo cliente. | 0 |
+| `public.app_records` | Um documento JSON por Pessoa Assistida; a própria pessoa e cuidadores vinculados podem ler/editar. Usa `version` para detectar edição concorrente. | 2 |
 | `public.word_bank` | Dica, resposta e indicador `active`; contas autenticadas leem palavras ativas. Não há edição pelo cliente. | 18 |
-| `public.user_preferences` | Modo escuro, escala e tipo de fonte por conta. Cada usuário lê e edita apenas sua própria linha. | 2 em 11/11/2026 |
+| `public.user_preferences` | Modo escuro, escala e tipo de fonte por conta. Cada usuário lê e edita apenas sua própria linha. | 4 |
 
-Todas essas tabelas têm RLS ligado. `care_invites` deliberadamente não tem política de acesso direto: somente as funções controladas lidam com códigos. `profiles`, `care_links` e `word_bank` são somente leitura para o aplicativo; `app_records` aceita criação pela Pessoa Assistida e atualização pelo proprietário ou cuidador vinculado. `user_preferences` aceita criação e atualização somente pela própria conta. Não há política de exclusão direta de registros pelo cliente.
+Todas essas tabelas têm RLS ligado. As duas tabelas privadas de convites deliberadamente não têm política de acesso direto: somente as funções controladas lidam com códigos. `profiles`, `care_links` e `word_bank` são somente leitura para o aplicativo; `app_records` aceita criação pela Pessoa Assistida e atualização pelo proprietário ou cuidador vinculado. `user_preferences` aceita criação e atualização somente pela própria conta. Não há política de exclusão direta de registros pelo cliente.
 
 ### Documento `app_records.data`
 
@@ -69,30 +71,31 @@ O banco contém 18 palavras. O aplicativo escolhe **três por data local** de fo
 
 ## 5. Vínculo Pessoa Assistida ↔ Cuidador
 
-1. A Pessoa Assistida autenticada chama `create_care_invite()`.
-2. A função invalida convites anteriores ainda abertos dessa pessoa e produz um código aleatório de uso único, válido por **24 horas**. Só o hash é armazenado.
-3. O cuidador autenticado informa o código; `redeem_care_invite(code)` confere prazo e resgate, cria `care_links` e marca o convite como usado.
+1. O cuidador autenticado chama `create_caregiver_invite()`.
+2. A função invalida convites anteriores ainda abertos desse cuidador e produz um código aleatório de uso único, válido por **24 horas**. Só o hash é armazenado. O app também oferece um link com esse código.
+3. A Pessoa Assistida autenticada recebe o código ou link e aceita o convite. `accept_caregiver_invite(code)` confere prazo, resgate e perfis, cria `care_links` e marca o convite como usado.
 4. Depois do vínculo, RLS permite ao cuidador ler e atualizar `app_records` da Pessoa Assistida associada. Sem vínculo, não há acesso aos dados dela.
 5. Qualquer participante pode encerrar o vínculo em Configurações. `unlink_caregiver(target_caregiver_id)` aceita a conta do cuidador vinculado ou a Pessoa Assistida proprietária; a remoção exige autenticação e, na interface, confirmação.
 
-Os endpoints `create_care_invite`, `redeem_care_invite`, `unlink_caregiver` e `complete_profile_role` são funções `SECURITY DEFINER` expostas apenas a contas autenticadas e validam `auth.uid()` internamente. Esse desenho exige revisão de segurança sempre que as funções forem alteradas.
+Os endpoints `create_caregiver_invite`, `accept_caregiver_invite`, `unlink_caregiver` e `complete_profile_role` são funções `SECURITY DEFINER` expostas apenas a contas autenticadas e validam `auth.uid()` internamente. `create_care_invite` e `redeem_care_invite` permanecem para versões antigas. Esse desenho exige revisão de segurança sempre que as funções forem alteradas.
 
 ## 6. Segurança e verificações pendentes
 
 | Item | Estado atual / ação prevista |
 | --- | --- |
-| RLS nas seis tabelas | Ativo; políticas de proprietário e vínculo verificadas no esquema. Falta teste ponta a ponta com duas contas reais para confirmar isolamento. |
+| RLS nas sete tabelas | Ativo; políticas de proprietário e vínculo verificadas no esquema. Falta teste ponta a ponta com duas contas reais para confirmar isolamento. |
 | Chaves | Chave publicável no build web; nenhuma chave secreta deve ir ao cliente. |
 | Google e Apple | Criar credenciais nos consoles externos, habilitar provedores no Supabase e testar cadastro/retorno/sessão. |
 | Redirect nativo | Adicionar e testar a URL do aplicativo antes de distribuir Android/iOS. |
-| Conselheiro de segurança | Aponta as quatro funções `SECURITY DEFINER` acessíveis a autenticados (uso deliberado), `care_invites` sem política direta (deliberado) e proteção contra senhas vazadas desativada (avaliar ativação no painel). |
+| Conselheiro de segurança | Aponta seis funções `SECURITY DEFINER` acessíveis a autenticados (uso deliberado), duas tabelas privadas de convites sem política direta (deliberado) e proteção contra senhas vazadas desativada (avaliar ativação no painel). |
+| E-mail de confirmação | O modelo em português com logo está no repositório, mas o plano Free exige SMTP próprio para permitir editar o modelo no painel. Continua ativo o e-mail padrão do Supabase. |
 | Privacidade | Exportação/exclusão de dados, retenção, consentimento, backups e tratamento de fotografias/possíveis dados de saúde ainda precisam de decisão antes de uso real com pessoas. |
 | Fotos e notificações | Não implementadas no Supabase. Os lembretes da conta são sincronizados no banco e geram alertas locais no Android/iOS da Pessoa Assistida quando ativados; não há push nem bucket de imagens. |
-| Histórico de migrações | O servidor registra também `20261111112414_unlink_caregiver`, `20261111140137_enable_workspace_realtime` e `20261111142248_user_preferences_per_account`; os arquivos locais usam os mesmos prefixos. |
+| Histórico de migrações | O servidor registra `20261111112414_unlink_caregiver`, `20261111140137_enable_workspace_realtime`, `20261111142248_user_preferences_per_account` e `20261112182221_caregiver_invites_assisted_acceptance`. Os arquivos locais usam os mesmos prefixos. |
 
 ## 7. Critério de suficiência para esta fase
 
-Não criar mais tabelas ou serviços apenas para reduzir a sensação de complexidade do Dashboard. A fase atual precisa de **Auth + seis tabelas + RLS + quatro funções**. O restante do painel pode continuar vazio. O próximo passo funcional do Supabase é configurar os provedores sociais e validar com duas contas de teste, uma de cada perfil, incluindo o convite, o desfazer do vínculo e o isolamento de dados.
+Não criar mais tabelas ou serviços apenas para reduzir a sensação de complexidade do Dashboard. A fase atual usa **Auth + sete tabelas + RLS + seis funções**. O restante do painel pode continuar vazio. O próximo passo funcional do Supabase é configurar os provedores sociais e validar com duas contas de teste, uma de cada perfil, incluindo o convite, o desfazer do vínculo e o isolamento de dados.
 
 ## Referências
 
