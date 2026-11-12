@@ -175,76 +175,86 @@ class _LoadingScreenState extends State<LoadingScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: AnimatedBuilder(
-        animation: _ctrl,
-        builder: (context, _) {
-          final a = _ctrl.value * 2 * math.pi;
-          return Container(
-            decoration: BoxDecoration(
-              gradient: SweepGradient(
-                colors: const [
-                  AppColors.splashStart,
-                  AppColors.primary,
-                  AppColors.splashEnd,
-                  AppColors.splashStart,
-                ],
-                transform: GradientRotation(a),
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          AnimatedBuilder(
+            animation: _ctrl,
+            builder: (context, _) => DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: const [
+                    AppColors.splashStart,
+                    AppColors.primary,
+                    AppColors.splashEnd,
+                  ],
+                  transform: GradientRotation(_ctrl.value * 2 * math.pi),
+                ),
               ),
             ),
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    width: 180,
-                    height: 180,
+          ),
+          Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: 180,
+                  height: 180,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: AppColors.splashStart,
+                    borderRadius: BorderRadius.circular(40),
+                    border: Border.all(color: Colors.white24),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.16),
+                        blurRadius: 20,
+                        offset: const Offset(0, 8),
+                      ),
+                    ],
+                  ),
+                  child: Image.asset(
+                    'assets/images/logo_branca.png',
+                    width: 152,
+                    height: 152,
+                    fit: BoxFit.contain,
                     alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.14),
-                      borderRadius: BorderRadius.circular(40),
-                      border: Border.all(color: Colors.white24),
-                    ),
-                    child: Image.asset(
-                      'assets/images/logo_branca.png',
-                      width: 152,
-                      height: 152,
-                      fit: BoxFit.contain,
-                      alignment: Alignment.center,
-                    ),
                   ),
-                  const SizedBox(height: 12),
-                  const Text(
-                    'Mente Viva',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 38,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: -1,
-                    ),
+                ),
+                const SizedBox(height: 12),
+                const Text(
+                  'Mente Viva',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 38,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: -1,
                   ),
-                  const SizedBox(height: 40),
-                  const SizedBox(
-                    width: 50,
-                    height: 50,
-                    child: CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation(Colors.white),
-                      strokeWidth: 4,
-                    ),
+                ),
+                const SizedBox(height: 40),
+                const SizedBox(
+                  width: 50,
+                  height: 50,
+                  child: CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation(Colors.white),
+                    strokeWidth: 4,
                   ),
-                  const SizedBox(height: 20),
-                  const Text(
-                    'CARREGANDO...',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      letterSpacing: 1,
-                    ),
+                ),
+                const SizedBox(height: 20),
+                const Text(
+                  'CARREGANDO...',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    letterSpacing: 1,
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          );
-        },
+          ),
+        ],
       ),
     );
   }
@@ -435,12 +445,13 @@ class _SlowRotatingBackgroundState extends State<_SlowRotatingBackground>
       width: double.infinity,
       height: double.infinity,
       decoration: BoxDecoration(
-        gradient: SweepGradient(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
           colors: const [
             AppColors.splashStart,
             AppColors.primary,
             AppColors.splashEnd,
-            AppColors.splashStart,
           ],
           transform: GradientRotation(_controller.value * 2 * math.pi),
         ),
