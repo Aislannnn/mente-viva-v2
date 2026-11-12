@@ -264,20 +264,7 @@ class SelecaoPerfilScreen extends StatelessWidget {
         const textColor = Colors.white;
         return Scaffold(
           backgroundColor: bg,
-          body: Container(
-            width: double.infinity,
-            height: double.infinity,
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  AppColors.splashStart,
-                  AppColors.primary,
-                  AppColors.splashEnd,
-                ],
-              ),
-            ),
+          body: _SlowRotatingBackground(
             child: SafeArea(
               child: SingleChildScrollView(
                 child: Center(
@@ -398,6 +385,69 @@ class SelecaoPerfilScreen extends StatelessWidget {
       MaterialPageRoute<void>(builder: (_) => LoginPreviewScreen(role: role)),
     );
   }
+}
+
+class _SlowRotatingBackground extends StatefulWidget {
+  const _SlowRotatingBackground({required this.child});
+
+  final Widget child;
+
+  @override
+  State<_SlowRotatingBackground> createState() =>
+      _SlowRotatingBackgroundState();
+}
+
+class _SlowRotatingBackgroundState extends State<_SlowRotatingBackground>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(seconds: 16),
+      vsync: this,
+    )..repeat();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (MediaQuery.disableAnimationsOf(context)) {
+      _controller.stop();
+      _controller.value = 0;
+    } else if (!_controller.isAnimating) {
+      _controller.repeat();
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => AnimatedBuilder(
+    animation: _controller,
+    child: widget.child,
+    builder: (context, child) => Container(
+      width: double.infinity,
+      height: double.infinity,
+      decoration: BoxDecoration(
+        gradient: SweepGradient(
+          colors: const [
+            AppColors.splashStart,
+            AppColors.primary,
+            AppColors.splashEnd,
+            AppColors.splashStart,
+          ],
+          transform: GradientRotation(_controller.value * 2 * math.pi),
+        ),
+      ),
+      child: child,
+    ),
+  );
 }
 
 class _CardPerfil extends StatelessWidget {
