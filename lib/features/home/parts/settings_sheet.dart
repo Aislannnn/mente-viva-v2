@@ -361,7 +361,7 @@ class _ConfigSheet extends StatelessWidget {
                             ),
                           ),
                           const Text(
-                            'Versão 1.0.0 · IFPR 2025',
+                            'Versão 1.0.0 · IFPR 2026',
                             style: TextStyle(
                               color: AppColors.primary,
                               fontSize: 12,
