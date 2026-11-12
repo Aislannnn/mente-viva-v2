@@ -8,12 +8,19 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
   int _currentIndex = 0;
+  String? _incomingInvite;
+
+  Future<void> _loadInvite() async {
+    final code = await pendingCareInvite.read();
+    if (mounted) setState(() => _incomingInvite = code);
+  }
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     appDataSession.start(perfilAtivo.value);
+    unawaited(_loadInvite());
   }
 
   @override
@@ -38,12 +45,13 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
       ? const [_HomePageCuidador(), _LembretesPage(), _AlbumPage()]
       : const [_HomePage(), JogosPage(), _LembretesPage(), _AlbumPage()];
 
-  void _abrirConfiguracoes() {
-    showModalBottomSheet(
+  Future<void> _abrirConfiguracoes() async {
+    await showModalBottomSheet<void>(
       context: context,
       backgroundColor: Colors.transparent,
       builder: (_) => const _ConfigSheet(),
     );
+    await _loadInvite();
   }
 
   @override
@@ -165,6 +173,32 @@ class _MainScreenState extends State<MainScreen> with WidgetsBindingObserver {
                           'PRÉVIA · Dados simulados. Nada será salvo.',
                           textAlign: TextAlign.center,
                         ),
+                      ),
+                    if (!eCuidador &&
+                        appDataSession.isAccount &&
+                        _incomingInvite != null)
+                      MaterialBanner(
+                        content: const Text(
+                          'Um cuidador convidou você para compartilhar a rotina.',
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () async {
+                              final accepted = await Navigator.of(context)
+                                  .push<bool>(
+                                    MaterialPageRoute<bool>(
+                                      builder: (_) => _AcceptCareInviteScreen(
+                                        initialCode: _incomingInvite,
+                                      ),
+                                    ),
+                                  );
+                              if (accepted == true && mounted) {
+                                await _loadInvite();
+                              }
+                            },
+                            child: const Text('Ver convite'),
+                          ),
+                        ],
                       ),
                     if (appDataSession.isAccount)
                       ValueListenableBuilder<String?>(

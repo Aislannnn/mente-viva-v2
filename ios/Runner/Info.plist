@@ -5,6 +5,8 @@
 	<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>
 	<key>CFBundleDevelopmentRegion</key>
+	<key>NSFaceIDUsageDescription</key>
+	<string>Use o Face ID para confirmar sua identidade antes de abrir seus dados no Mente Viva.</string>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
 	<string>Mente Viva</string>

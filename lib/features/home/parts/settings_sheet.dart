@@ -91,53 +91,13 @@ class _ConfigSheet extends StatelessWidget {
                   _ConfigItem(
                     escuro: escuro,
                     icon: Icons.person_add_alt_1_outlined,
-                    label: 'Convidar cuidador',
+                    label: 'Aceitar convite de cuidador',
                     trailing: const Icon(Icons.chevron_right),
-                    onTap: () async {
-                      try {
-                        final code = await appDataSession.createInvite();
-                        if (!context.mounted) return;
-                        await showDialog<void>(
-                          context: context,
-                          builder: (dialogContext) => AlertDialog(
-                            title: const Text('Código de convite'),
-                            content: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Text(
-                                  'Compartilhe este código com seu cuidador. Ele vale por 24 horas e pode ser usado uma vez.',
-                                ),
-                                const SizedBox(height: 16),
-                                SelectableText(
-                                  code,
-                                  style: const TextStyle(
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.bold,
-                                    letterSpacing: 3,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.pop(dialogContext),
-                                child: const Text('Fechar'),
-                              ),
-                            ],
-                          ),
-                        );
-                      } catch (_) {
-                        if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text(
-                                'Não foi possível gerar o convite.',
-                              ),
-                            ),
-                          );
-                        }
-                      }
-                    },
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute<bool>(
+                        builder: (_) => const _AcceptCareInviteScreen(),
+                      ),
+                    ),
                   ),
                   const SizedBox(height: 10),
                 ],
@@ -195,6 +155,11 @@ class _ConfigSheet extends StatelessWidget {
                       ),
                     ),
                   ),
+                  const SizedBox(height: 10),
+                ],
+                if (appDataSession.isAccount &&
+                    biometricUnlock.supportedPlatform) ...[
+                  _BiometricSetting(escuro: escuro),
                   const SizedBox(height: 10),
                 ],
                 _ConfigItem(
@@ -579,4 +544,65 @@ class _ConfigItem extends StatelessWidget {
       ),
     );
   }
+}
+
+class _BiometricSetting extends StatefulWidget {
+  const _BiometricSetting({required this.escuro});
+  final bool escuro;
+  @override
+  State<_BiometricSetting> createState() => _BiometricSettingState();
+}
+
+class _BiometricSettingState extends State<_BiometricSetting> {
+  bool _enabled = false;
+  bool _available = false;
+  bool _busy = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  Future<void> _load() async {
+    final available = await biometricUnlock.available();
+    final enabled = await biometricUnlock.enabled();
+    if (mounted)
+      setState(() {
+        _available = available;
+        _enabled = enabled;
+        _busy = false;
+      });
+  }
+
+  Future<void> _change(bool value) async {
+    setState(() => _busy = true);
+    final saved = await biometricUnlock.setEnabled(value);
+    if (!mounted) return;
+    setState(() {
+      _busy = false;
+      if (saved) _enabled = value;
+    });
+    if (!saved)
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Não foi possível confirmar a biometria. Confira as configurações do aparelho.',
+          ),
+        ),
+      );
+  }
+
+  @override
+  Widget build(BuildContext context) => _ConfigItem(
+    escuro: widget.escuro,
+    icon: Icons.fingerprint,
+    label: _available
+        ? 'Biometria ao abrir o app'
+        : 'Biometria indisponível neste aparelho',
+    trailing: Switch(
+      value: _enabled,
+      onChanged: _busy || !_available ? null : _change,
+    ),
+  );
 }

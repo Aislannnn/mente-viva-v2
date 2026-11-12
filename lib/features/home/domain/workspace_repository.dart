@@ -17,8 +17,8 @@ class WorkspaceConflict implements Exception {
 abstract class WorkspaceRepository {
   Future<WorkspaceData?> load(String role);
   Future<int> save(WorkspaceData current, Map<String, dynamic> data);
-  Future<String> createInvite();
-  Future<void> redeemInvite(String code);
+  Future<String> createCaregiverInvite();
+  Future<void> acceptCaregiverInvite(String code);
   Future<List<String>> caregiverIds();
   Future<void> unlinkCaregiver(String caregiverId);
 }

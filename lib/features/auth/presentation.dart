@@ -3,6 +3,8 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import '../../app/auth_dependencies.dart';
+import '../../app/biometric_unlock.dart';
+import '../../app/pending_care_invite.dart';
 import '../../app/data_session.dart';
 import '../../core/design_tokens.dart';
 import '../../core/app_state.dart';
@@ -15,6 +17,99 @@ class LoadingScreen extends StatefulWidget {
 
   @override
   State<LoadingScreen> createState() => _LoadingScreenState();
+}
+
+class BiometricGateScreen extends StatefulWidget {
+  const BiometricGateScreen({super.key});
+  @override
+  State<BiometricGateScreen> createState() => _BiometricGateScreenState();
+}
+
+class _BiometricGateScreenState extends State<BiometricGateScreen> {
+  bool _busy = false;
+  String? _message;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _unlock());
+  }
+
+  Future<void> _unlock() async {
+    if (_busy) return;
+    setState(() {
+      _busy = true;
+      _message = null;
+    });
+    final enabled = await biometricUnlock.enabled();
+    final allowed = !enabled || await biometricUnlock.authenticate();
+    if (!mounted) return;
+    if (allowed) {
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute<void>(builder: (_) => const MainScreen()),
+      );
+      return;
+    }
+    setState(() {
+      _busy = false;
+      _message = 'Não foi possível confirmar a biometria neste aparelho.';
+    });
+  }
+
+  Future<void> _useAccountLogin() async {
+    try {
+      await authRepository.signOut();
+    } catch (_) {
+      if (mounted)
+        setState(() => _message = 'Não foi possível sair. Tente novamente.');
+      return;
+    }
+    appDataSession.chooseMode(SessionMode.guest);
+    if (!mounted) return;
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute<void>(builder: (_) => const SelecaoPerfilScreen()),
+      (_) => false,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) => Scaffold(
+    backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+    body: SafeArea(
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.fingerprint, size: 72, color: AppColors.primary),
+              const SizedBox(height: 16),
+              Text(
+                'Proteja sua conta',
+                style: Theme.of(context).textTheme.headlineSmall,
+              ),
+              const SizedBox(height: 12),
+              Text(
+                _message ?? 'Confirme sua identidade para continuar.',
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 20),
+              FilledButton(
+                onPressed: _busy ? null : _unlock,
+                child: Text(
+                  _busy ? 'Aguarde...' : 'Tentar biometria novamente',
+                ),
+              ),
+              TextButton(
+                onPressed: _busy ? null : _useAccountLogin,
+                child: const Text('Entrar com a conta'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    ),
+  );
 }
 
 class _LoadingScreenState extends State<LoadingScreen>
@@ -33,6 +128,11 @@ class _LoadingScreenState extends State<LoadingScreen>
   }
 
   Future<void> _resumeSession() async {
+    try {
+      await pendingCareInvite.rememberFromUrl();
+    } catch (_) {
+      // Storage failures must not prevent the app from opening.
+    }
     await Future<void>.delayed(const Duration(seconds: 2));
     AccessRole? role;
     var needsRole = false;
@@ -60,7 +160,7 @@ class _LoadingScreenState extends State<LoadingScreen>
     Navigator.of(context).pushReplacement(
       MaterialPageRoute<void>(
         builder: (_) => role != null
-            ? const MainScreen()
+            ? const BiometricGateScreen()
             : SelecaoPerfilScreen(completeAccount: needsRole),
       ),
     );
@@ -81,14 +181,14 @@ class _LoadingScreenState extends State<LoadingScreen>
           final a = _ctrl.value * 2 * math.pi;
           return Container(
             decoration: BoxDecoration(
-              gradient: LinearGradient(
+              gradient: SweepGradient(
                 colors: const [
                   AppColors.splashStart,
                   AppColors.primary,
                   AppColors.splashEnd,
+                  AppColors.splashStart,
                 ],
-                begin: Alignment(math.cos(a), math.sin(a)),
-                end: Alignment(-math.cos(a), -math.sin(a)),
+                transform: GradientRotation(a),
               ),
             ),
             child: Center(

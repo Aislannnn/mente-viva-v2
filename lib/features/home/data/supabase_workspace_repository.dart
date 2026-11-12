@@ -67,14 +67,12 @@ class SupabaseWorkspaceRepository implements WorkspaceRepository {
   }
 
   @override
-  Future<String> createInvite() async {
-    final code = await _client.rpc('create_care_invite');
-    return code as String;
-  }
+  Future<String> createCaregiverInvite() async =>
+      await _client.rpc('create_caregiver_invite') as String;
 
   @override
-  Future<void> redeemInvite(String code) async {
-    await _client.rpc('redeem_care_invite', params: {'code': code.trim()});
+  Future<void> acceptCaregiverInvite(String code) async {
+    await _client.rpc('accept_caregiver_invite', params: {'code': code.trim()});
   }
 
   @override

@@ -35,6 +35,7 @@ class AppDataSession {
   bool _pending = false;
   bool _savingPreferences = false;
   bool _pendingPreferences = false;
+  bool _checkingLink = false;
   bool needsReload = false;
   int _generation = 0;
 
@@ -113,18 +114,39 @@ class AppDataSession {
     }
   }
 
-  Future<String> createInvite() async {
-    if (!isAccount)
-      throw StateError('Entre com sua conta para gerar um convite.');
-    return _repository.createInvite();
+  Future<String> createCaregiverInvite() async {
+    if (mode != SessionMode.account ||
+        perfilAtivo.value != 'cuidador' ||
+        Supabase.instance.client.auth.currentUser == null) {
+      throw StateError('Entre como cuidador para gerar um convite.');
+    }
+    return _repository.createCaregiverInvite();
   }
 
-  Future<void> redeemInvite(String code) async {
-    if (mode != SessionMode.account) {
-      throw StateError('Entre com sua conta para usar um convite.');
+  Future<void> checkCaregiverLink() async {
+    if (_checkingLink ||
+        mode != SessionMode.account ||
+        phase.value != SessionPhase.needsLink)
+      return;
+    _checkingLink = true;
+    try {
+      final workspace = await _repository.load('cuidador');
+      if (workspace != null && phase.value == SessionPhase.needsLink) {
+        await start('cuidador');
+      }
+    } catch (_) {
+      // A later poll or manual refresh can retry.
+    } finally {
+      _checkingLink = false;
     }
-    await _repository.redeemInvite(code);
-    await start('cuidador');
+  }
+
+  Future<void> acceptCaregiverInvite(String code) async {
+    if (mode != SessionMode.account || perfilAtivo.value != 'assistida') {
+      throw StateError('Entre como Pessoa Assistida para aceitar o convite.');
+    }
+    await _repository.acceptCaregiverInvite(code);
+    await start('assistida');
   }
 
   Future<List<String>> caregiverIds() async {

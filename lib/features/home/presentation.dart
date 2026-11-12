@@ -1,8 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../app/auth_dependencies.dart';
+import '../../app/biometric_unlock.dart';
+import '../../app/pending_care_invite.dart';
 import '../../app/data_session.dart';
 import '../../app/reminder_notifications.dart';
 import '../../core/app_state.dart';
@@ -20,6 +23,7 @@ part 'parts/health_forms.dart';
 part 'parts/settings_sheet.dart';
 part 'parts/bottom_nav_item.dart';
 part 'parts/care_link_screen.dart';
+part 'parts/accept_care_invite_screen.dart';
 
 extension on Lembrete {
   IconData get icone => _iconFromCode(iconCodePoint);

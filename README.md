@@ -40,13 +40,15 @@ flutter build web --release --base-href /mente-viva-v2/
 - `lib/app/`: montagem das dependências.
 - `test/`: testes de regras, jogos completos, navegação e limites de arquitetura.
 
-Com o Supabase configurado, e-mail e senha autenticam contas e exigem confirmação do e-mail quando habilitada no projeto. A Pessoa Assistida pode gerar um convite de 24 horas e uso único; o cuidador digita o código para ver e editar os mesmos registros. A conta sincroniza lembretes, compromissos, pessoas, sono, esquecimentos, visitas e estatísticas dos jogos. O jogo de palavras recebe 3 palavras do banco a cada dia. No acesso sem conta, os dados ficam somente na memória; a prévia exibe exemplos identificados como simulação. A estrutura e as decisões estão documentadas em [docs/architecture.md](docs/architecture.md) e [docs/design.md](docs/design.md).
+Com o Supabase configurado, e-mail e senha autenticam contas e exigem confirmação do e-mail quando habilitada no projeto. A versão local prepara um convite de 24 horas gerado pelo cuidador; a Pessoa Assistida aceita o código ou link na própria conta. A migração desse fluxo ainda não foi aplicada ao projeto remoto. A conta sincroniza lembretes, compromissos, pessoas, sono, esquecimentos, visitas e estatísticas dos jogos. O jogo de palavras recebe 3 palavras do banco a cada dia. No acesso sem conta, os dados ficam somente na memória; a prévia exibe exemplos identificados como simulação. A estrutura e as decisões estão documentadas em [docs/architecture.md](docs/architecture.md) e [docs/design.md](docs/design.md).
 
 Em contas vinculadas, atualizações feitas em outro aparelho chegam pelo Supabase Realtime; o app também confere os dados ao voltar para a tela e periodicamente enquanto está aberto. Jogos aparecem apenas para a Pessoa Assistida.
 
 Modo escuro, tamanho dos elementos e tipo de fonte são salvos por conta em `user_preferences`. Uma alteração do cuidador não muda a aparência da Pessoa Assistida, nem o contrário.
 
 Ambos os participantes podem desfazer o vínculo nas configurações. No Android e iOS, a Pessoa Assistida pode ativar alertas locais diários para seus lembretes; a preferência é deste aparelho e o app pede permissão ao ativar. O acesso sem conta e a prévia não programam alertas. O navegador não recebe esses alertas quando está fechado.
+
+A versão local também permite ativar biometria no Android e iOS para abrir uma sessão já autenticada. O botão Google usa OAuth, mas requer configuração do provedor e dos redirects no Supabase e no Google. As etapas pendentes estão em [docs/next-local-release.md](docs/next-local-release.md).
 
 ## Aplicativos Android e iOS
 
