@@ -5,6 +5,13 @@ import 'package:mente_viva/main.dart';
 import 'package:mente_viva/app/data_session.dart';
 import 'package:mente_viva/core/app_state.dart';
 
+Future<void> _pumpApp(WidgetTester tester) async {
+  tester.platformDispatcher.accessibilityFeaturesTestValue =
+      const FakeAccessibilityFeatures(disableAnimations: true);
+  addTearDown(tester.platformDispatcher.clearAccessibilityFeaturesTestValue);
+  await tester.pumpWidget(const MyApp());
+}
+
 void main() {
   setUp(() {
     appDataSession.chooseMode(SessionMode.guest);
@@ -23,7 +30,7 @@ void main() {
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
-    await tester.pumpWidget(const MyApp());
+    await _pumpApp(tester);
     await tester.pump(const Duration(seconds: 2));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Pessoa Assistida'));
@@ -47,7 +54,7 @@ void main() {
     addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
     addTearDown(() => escalaFonte.value = 1.0);
 
-    await tester.pumpWidget(const MyApp());
+    await _pumpApp(tester);
     final textContext = tester.element(find.text('CARREGANDO...'));
     final scaler = MediaQuery.textScalerOf(textContext);
     expect(scaler.scale(16), closeTo(19.2, 0.01));
@@ -58,7 +65,7 @@ void main() {
   testWidgets('Mente Viva app starts on the loading screen', (
     WidgetTester tester,
   ) async {
-    await tester.pumpWidget(const MyApp());
+    await _pumpApp(tester);
 
     expect(find.text('Mente Viva'), findsOneWidget);
     expect(find.text('CARREGANDO...'), findsOneWidget);
@@ -128,7 +135,7 @@ void main() {
   testWidgets('Cuidador pode abrir a área de lembretes', (
     WidgetTester tester,
   ) async {
-    await tester.pumpWidget(const MyApp());
+    await _pumpApp(tester);
     await tester.pump(const Duration(seconds: 2));
     await tester.pumpAndSettle();
 
@@ -156,7 +163,7 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
-    await tester.pumpWidget(const MyApp());
+    await _pumpApp(tester);
     await tester.pump(const Duration(seconds: 2));
     await tester.pumpAndSettle();
     await tester.ensureVisible(find.text('Cuidador'));
@@ -175,7 +182,7 @@ void main() {
   testWidgets(
     'Pessoa assistida acessa lembretes e configurações com quatro abas',
     (WidgetTester tester) async {
-      await tester.pumpWidget(const MyApp());
+      await _pumpApp(tester);
       await tester.pump(const Duration(seconds: 2));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Pessoa Assistida'));
@@ -213,7 +220,7 @@ void main() {
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
 
-    await tester.pumpWidget(const MyApp());
+    await _pumpApp(tester);
     await tester.pump(const Duration(seconds: 2));
     await tester.pumpAndSettle();
     final profileBackground = find.byWidgetPredicate(
@@ -248,7 +255,7 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
     addTearDown(() => escalaFonte.value = 1.0);
 
-    await tester.pumpWidget(const MyApp());
+    await _pumpApp(tester);
     await tester.pump(const Duration(seconds: 2));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Pessoa Assistida'));
@@ -274,7 +281,7 @@ void main() {
     addTearDown(tester.view.resetDevicePixelRatio);
     addTearDown(() => escalaFonte.value = 1.0);
 
-    await tester.pumpWidget(const MyApp());
+    await _pumpApp(tester);
     await tester.pump(const Duration(seconds: 2));
     await tester.pumpAndSettle();
     await tester.ensureVisible(find.text('Cuidador'));

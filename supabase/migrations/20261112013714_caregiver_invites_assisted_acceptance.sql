@@ -1,4 +1,4 @@
--- Prepared locally. Apply only when the new invitation flow is approved.
+-- Mente Viva v2: caregiver-generated invites accepted by the assisted person.
 create table app_private.caregiver_invites (
   id uuid primary key default gen_random_uuid(),
   caregiver_id uuid not null references public.profiles(id) on delete cascade,
